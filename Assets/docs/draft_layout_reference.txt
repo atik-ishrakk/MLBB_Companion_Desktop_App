@@ -1,0 +1,107 @@
+File description: Draft-screen template coordinates and fixed-slot layout reference.
+
+# Draft Pick Template Fixed Slots Coordination:
+
+Round Hero Icon Online Location: https://mobile-legends.fandom.com/wiki/List_of_heroes
+Ally Round Ban Hero Icon Placeholder Positions: 
+Slot 1: Dimension: 80x80px
+	Position : 30px from left and 6 pixel from top
+Slot 2: Dimension: 80x80px
+	Position : 140px from left and 6 pixel from top
+Slot 3: Dimension: 80x80px
+	Position : 250px from left and 6 pixel from top
+Slot 4: Dimension: 80x80px
+	Position : 360px from left and 6 pixel from top
+Slot 5: Dimension: 80x80px
+	Position : 470px from left and 6 pixel from top
+Note:
+1. Position is measured From Left to right in x axis.
+2. The gap between each slot is 30px.
+3. Total group dimension is 520x80px.
+
+Enemy Round Ban Hero Icon Placeholder Positions:
+Slot 6: Dimension: 80x80px
+	Position : 1370px from left and 6 pixel from top
+Slot 7: Dimension: 80x80px
+	Position : 1480px from left and 6 pixel from top
+Slot 8: Dimension: 80x80px
+	Position : 1590px from left and 6 pixel from top
+Slot 9: Dimension: 80x80px
+	Position : 1700px from left and 6 pixel from top
+Slot 10: Dimension: 80x80px
+	Position : 1810px from left and 6 pixel from top
+Note:
+1. Position is measured From Left to right in x axis.
+2. The gap between each slot is 30px.
+3. Total group dimension is 520x80px.
+
+Rectangle Hero Icon Online Location: https://www.mobilelegends.com/hero
+Ally Team Rectangle Hero Pick Icon Placeholder Positions:
+Slot 1: Dimension: 210x132px
+	Position : 0px from left and 125 pixel from top
+Slot 2: Dimension: 210x132px
+	Position : 0px from left and 298 pixel from top
+Slot 3: Dimension: 210x132px
+	Position : 0px from left and 470 pixel from top
+Slot 4: Dimension: 210x132px
+	Position : 0px from left and 642 pixel from top
+Slot 5: Dimension: 210x132px
+	Position : 0px from left and 814 pixel from top
+Note:
+1. Position is measured From Left to right in x axis.
+2. The gap between each slot is approx. 40px.
+3. Total group dimension is 210x820px.
+4. You can adjust the gap between each slot[38px to 42px] and the height of each slot[130px to 135px] here if u wish.
+
+Ally Sub-Elements (Flag, Lane, Battle Spell) Respected to Hero Pick Slots (210x132px):
+1. Flag Slot (Avatar / Country Flag Circle):
+	Dimension: 46x46px
+	Relative Position inside Slot: 6px from left and 3px from top
+	Slot 1 Absolute: 6px from left, 128px from top
+	Slot 2 Absolute: 6px from left, 301px from top
+	Slot 3 Absolute: 6px from left, 473px from top
+	Slot 4 Absolute: 6px from left, 645px from top
+	Slot 5 Absolute: 6px from left, 817px from top
+
+2. Lane Slot (EXP, Jungle, Mid, Gold, Roam Badge):
+	Dimension: 50x50px
+	Relative Position inside Slot: 5px from left and 53px from top
+	Slot 1 Absolute: 5px from left, 178px from top
+	Slot 2 Absolute: 5px from left, 351px from top
+	Slot 3 Absolute: 5px from left, 523px from top
+	Slot 4 Absolute: 5px from left, 695px from top
+	Slot 5 Absolute: 5px from left, 867px from top
+
+3. Battle Spell Slot (Retribution, Flicker, Inspire, Purify, etc.):
+	Dimension: 54x55px
+	Relative Position inside Slot: 194px from left and 2px from top (overlaps slot right boundary by 38px)
+	Slot 1 Absolute: 194px from left, 127px from top
+	Slot 2 Absolute: 194px from left, 300px from top
+	Slot 3 Absolute: 194px from left, 472px from top
+	Slot 4 Absolute: 194px from left, 644px from top
+	Slot 5 Absolute: 194px from left, 816px from top
+
+Enemy Team Rectangle Hero Pick Icon Placeholder Positions:
+Slot 6: Dimension: 210x132px
+	Position : 1710px from left and 125 pixel from top
+Slot 7: Dimension: 210x132px
+	Position : 1710px from left and 298 pixel from top
+Slot 8: Dimension: 210x132px
+	Position : 1710px from left and 470 pixel from top
+Slot 9: Dimension: 210x132px
+	Position : 1710px from left and 642 pixel from top
+Slot 10: Dimension: 210x132px
+	Position : 1710px from left and 814 pixel from top
+Note:
+1. Position is measured From Left to right in x axis.
+2. The gap between each slot is approx. 40px.
+3. Total group dimension is 210x820px.
+4. You can adjust the gap between each slot[38px to 42px] and the height of each slot[130px to 135px] here if u wish.
+5. In Draft Pick mode, Enemy pick slots do NOT contain Flag, Lane, or Battle Spell sub-element indicators.
+
+#Phase detection Coordinates:
+
+Homepage:
+	'RANKED' Button : Have Yellow background
+		Dimension: 315x135px
+		Position : 1603px from left and 926px from top

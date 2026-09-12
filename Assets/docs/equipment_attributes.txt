@@ -1,0 +1,749 @@
+File description: Structured MLBB equipment attributes used by the recommendation engine.
+
+1#Malefic Gun
+Price:2120
+Category: Attack
+Core:
++40 Physical Attack
++20% Attack Speed
+Unique Passive - Armor Buster: Increase Physical
+Penetration by 30%.
+Unique Passive - Malefic Energy: Increases Basic
+Attack range by 12%. When hitting a target, gains 10%
+Movement Speed for 0.5s.
+
+2#Great Dragon Spear
+Price:2140
+Category: Attack
+Core:
++70 Physical Attack
++10% Cooldown Reduction
++20% Crit Chance
+Unique Passive - Supreme Warrior: After casting an
+Ultimate, increase Movement Speed by 30% for 7.5s.
+This effect has a 15s cooldown.
+
+
+3#Sea Halberd
+Price:2050
+Category: Attack
+Core:
++80 Physical Attack
++20% Attack speed
+Unique Passive - Lifebane: Dealing damage to a target
+will reduce the Shield and HP Regen effects on them to
+60% of normal for 3s.
+Unique Passive - Punish: Increase damage by 8%
+against enemy heroes with higher extra HP.
+
+4#Rose Gold Meteor
+Price:2030
+Category: Attack
+Core:
++30 Physical Attack
++20% Attack Speed
++10% Lifesteal
+Unique Passive - Dragon Scale: Every 4 extra Physical
+Attack increases Hybrid Defense by 1, up to 50 (effect is
+halved if Main Role is not Fighter).
+Unique Passive - Lifeline: When taking damage that
+reduces HP below 30%, gain a (120*Hero Level) shield
+and 50% Movement Speed that rapidly decays over 3s.
+This effect has a 60s cooldown.
+
+5#Hunter Strike
+Price: 2010
+Category: Attack
+Core:
++80 Physical Attack
++10% Cooldown Reduction
+Unique Attribute: +15 Physical Penetration
+Unique Passive - Retribution: Dealing damage to the
+same enemy hero or creep 5 times in a row grants 50%
+extra Movement Speed that decays over 3s (8s
+cooldown).
+
+6#Blade of Despair
+Price:3010
+Category: Attack
+Core:
++160 Physical Attack
++5% Movement Speed
+Unique Passive - Despair: Dealing damage to
+non-Minion enemies below 50% HP increases Physical
+Attack by 25% for 2s (takes effect before the damage is
+dealt).
+
+7#Blade of the Heptaseas
+Price: 1950
+Category: Attack
+Core:
++70 physical Attack
++250 HP
+Unique Attribute: +15 Physical Penetration
+Unique Passive - Ambush: If no damage is taken or
+dealt within 5s (excluding from Minions or Creeps), the
+next Basic Attack will deal an additional 160 (+40% Total
+Physical Attack) Physical Damage and slow the target
+by for 1.5s.
+
+8#Windtalker
+Price:1880
+Category: Attack
+Core:
++35% Attack Speed
++20% Crit Chance
++20 Movement Speed
+Unique Passive - Typhoon: Every 5-2s (reduced by 0.2s
+for each Basic Attack), the next Basic Attack will hit up to
+3 enemy units for 150-362 Magic Damage. (This attack
+can Crit and the damage increases to 200% against
+Minions.)
+
+9#Endless Battle
+Price:2330
+Category: Attack
+Core:
++60 Physical Attack
++250 HP
++10% Cooldown Reduction
++5% Movement Speed
++5 Mana Regen
+Unique Passive - Divine Justice: After casting a skill, the
+next Basic Attack within 3s deals (60% Total Physical
+Attack) extra True Damage and recovers 80 (+40%
+Total Physical Attack) HP (1.5s cooldown).
+
+10#Berserker's Fury
+Price:2390
+Category: Attack
+Core:
++60 physical Attack
++25% Crit Chance
+Unique Attribute: +30% Crit Damage
+Unique Passive - Doom: When Basic Attacks Crit, they
+deal extra True Damage equal to 12% of the damage
+before reduction.
+
+11#Haas' Claws
+Price:2020
+Category: Attack
+Core:
++40 physical Attack
++15% Attack speed
++20% Crit Chance
+Unique Attribute: +20% Lifesteal
+Unique Passive - Frenzy: Critical strikes grant 20%
+Attack Speed for 2s.
+
+12#Malefic Roar
+Price:2060
+Category: Attack
+Core:
++60 Physical Attack
+Unique Passive - Armor Buster: Increase Physical
+Penetration by 30%.
+Unique Passive - Breaker: When attacking an enemy,
+gains 0.1% extra Physical Penetration for each point of
+the enemy's Physical Defense, capped at 30%.
+
+13#Winter Crown
+Price:1910
+Category: Attack
+Core:
++45 Adaptive Attack
++400 HP
++5% Cooldown Reduction
+Active Skill - Frozen: Becomes frozen, untargetable, and
+immune to damage for 2s (IOOs cooldown). Cannot
+move or cast skills while frozen, but skills already cast
+won't be interrupted.
+
+14#Fleeting Time
+Price:2050
+Category: Attack
+Core:
++30 Adaptive Attack
++600 HP
++15% Cooldown Reduction
+Unique Passive - Timestream: Hero kills or assists
+reduce the Ultimate's current cooldown by 30%.
+
+15#Sky Piercer
+Price:1500
+Category: Attack
+Core:
++60 Adaptive Attack
++15 Movement Speed
+Unique Passive - Lethality: After dealing damage to an
+enemy hero, executes the hero if their HP is lower than
+4%. Gains IO stack(s) of Lethality for each kill and loses
+30% of current stack(s) for each death. Each stack of
+Lethality increases the HP threshold of the execute
+effect by 0.1%, stacking up to 80 times.
+
+16#War Axe
+Price:2100
+Category: Attack
+Core:
++35 Physical Attack
++400 H p
++10% Cooldown Reduction
++8% Hybrid Lifesteal
+Unique Passive - Fighting Spirit: Attacks grant 12 extra
+Physical Attack per second for 4s, up to 6 stacks. Deals
+extra 10% True Damage based on the damage dealt (no
+damage reduction counted)at full stacks.
+Marksmen, Mages, and Supports only receive 50% of
+these stacked effects.
+
+17#Wind of Nature
+Price:1910
+Category: Attack
+Core:
++30 Physical Attack
++20% Attack Speed
++10% Lifesteal
+Active Skill - Wind Chant: Become immune to all
+Physical Damage for 2s (duration is halved if Main Role
+is not Marksman; 90s cooldown).
+
+18#Golden Staff
+Price:2000
+Category: Attack
+Core:
++55 Physical Attack
++15% Attack Speed
+Unique Passive - Swift: Every 1% extra Crit Chance
+gained is converted into 1% extra Attack Speed.
+Unique Passive - Endless Strike: After every 2 non-crit
+Basic Attacks, the Attack Speed of the next Basic Attack
+is increased by 80% (and Attack Speed cap is increased
+to 500%) and triggers Attack Effects an additional 2
+time(s).
+
+19#Corrosion Scythe
+Price:2050
+Category: Attack
+Core:
++30 Physical Attack
++5% Movement Speed
++30% Attack Speed
+Unique Passive - Corrosion: Basic Attacks gain 80 extra
+Physical Damage and slow the target by 8% (halved for
+ranged Basic Attacks) for 1.5s. Stacks up to 5 times.
+Unique Passive - Impulse: Basic Attacks grant 6% extra
+Attack Speed for 3s, capped at 5 stacks.
+
+20#Demon Hunter Sword
+Price:2180
+Category: Attack
+Core:
++35 Physical Attack
++20% Attack Speed
+Unique Passive - Engulf: Basic Attacks deal 8% of the
+target's current HP as extra Physical Damage (capped
+at 60 against minions).
+Unique Passive - Devour: Each Basic Attack recovers
+IO(+4*Hero Level) HP. This effect is halved against
+minions.
+
+21#Wishing Lantern
+Price:2250
+Category: Magic
+Core:
++75 Magic Power
+Mana
++10% Cooldown Reduction
+Unique Passive - Butterfly Goddess: For every 900
+Magic Damage dealt to an enemy hero (calculated
+before Damage Reduction), a Butterfly Goddess is
+summoned to attack the enemy hero, dealing Magic
+Damage equal to 8% of their current HP.
+
+22#Flask of the Oasis
+Price:1850
+Category: Magic
+Core:
++300 HP
++10% Cooldown Reduction
+Unique Attribute: +12% Healing Effect
+Unique Passive - Blessing: When casting a healing or
+shield skill, if the targets HP is below 35% or falls below
+35% within 3s, they will get a (100*Hero Level) shield
+that lasts 3s. When this effect triggers, it also reduces
+the cooldown of the caster's skills by 2s.
+This effect can only trigger once every 60s on the same
+target, and will not trigger on self-only healing and shield
+skills.
+
+23#Genius Wand
+Price:2000
+Category: Magic
+Core:
++75 Magic Power
++5% Movement Speed
+Unique Attribute: +10 Magic Penetration
+Unique Passive - Magic: Dealing Magic Damage to
+enemy heroes will reduce their Magic Defense by
+2.5(+O.5*Hero Level) for 2s. Stacks up to 3 times.
+
+24#Lightning Truncheon
+Price:2250
+Category: Magic
+Core:
++75 Magic Power
++400 Mana
++10% Cooldown Reduction
+Unique Passive - Resonate: Every 6s, the next skill
+echoes, dealing 255 (+85% Total Magic Power) extra
+Magic Damage to all enemies in range.
+
+25#Blood Wings
+Price:2100
+Category: Magic
+Core:
++90 Magic Power
+Unique Passive - Guard: Gains a 800 (+100% Total
+Magic Power) Shield that will regenerate 20s after being
+damaged. The Shield also grants 30 Movement Speed
+while it lasts and 150 Movement Speed for Is after it
+breaks.
+
+26#Starlium Scythe
+Price:2120
+Category: Magic
+Core:
++75 Magic Power
++10% Cooldown Reduction
++8% Hybrid Lifesteal
++6 Mana Regen
+Unique Passive - Crisis: After casting a skill, the next
+Basic Attack within 3s deals 90 (+60% Total Magic
+Power) extra True Damage and reduces the target's
+Movement Speed by 15% for 1.5s (1.5s cooldown).
+
+27#Glowing Wand
+Price:2050
+Category: Magic
+Core:
++60 Magic Power
++300 HP
++5% Movement Speed
+Unique Passive - Scorch: Dealing Magic Damage burns
+the targets for 3s, also dealing extra Magic Damage
+equal to 1% of the target's Max HP per second.
+Unique Passive - Lifebane: Dealing damage to a target
+will reduce the Shield and HP Regen effects on them to
+60% of normal for 3s.
+
+28#Ice Queen Wand
+Price:2040
+Category: Magic
+Core:
++60 Magic Power
++10% spell vamp
++300 HP
++7% Movement Speed
+Unique Passive - Ice Bound: When a skill deals damage
+to an enemy hero, it will also slow them by 10% for 2s
+(stacks up to 3 times). This effect has a 0.4s cooldown.
+
+29#Concentrated Energy
+Price:2020
+Category: Magic
+Core:
++75 Magic Power
++400 HP
+Unique Attribute: +20% Hybrid Lifesteal
+Unique Passive - Recharge: Increases Magic Power by
+5 after dealing Magic Damage (this effect stacks up to 6
+times and can only gain 1 stack every 0.4s). When
+reaching full stacks, increases Magic Damage by 12%
+for 5s.
+
+30#Holy Crystal
+Price:3000
+Category: Magic
+Core:
++165 Magic Power
+Unique Passive - Mystery: Gains 21-35% extra Magic
+Power (scales with level).
+
+31#Divine Glaive
+Price:1970
+Category: Magic
+Core:
++60 Magic Power
+Unique Attribute: +40% Magic Penetration
+Unique Passive - Spellbreaker: When attacking an
+enemy, gains 0.1% extra Magic Penetration for each
+point of the enemy's Magic Defense, capped at 20%.
+
+32#Clock of Destiny
+Price:2030
+Category: Magic
+Core:
++45 Magic Power
++400 HP
++400 Mana
++10% Cooldown Reduction
+Unique Passive - Destiny: Gains 4.5(+0.5*Hero Level)
+Hybrid Defense for 5s when dealing Magic Damage to
+enemy heroes, stacking up to 6 times (can gain 1 stack
+every 0.4s).
+Unique Passive - Gift: When HP drops below 50%,
+recovers 15% of HP over the next 3s. When Mana drops
+below 50%, restores 15% of Mana over the next 3s.
+Cooldown: 60s.
+
+33#Winter Crown
+Price:1910
+Category: Magic
+Core:
++45 Adaptive Attack
++400 HP
++5% Cooldown Reduction
+Active Skill - Frozen: Becomes frozen, untargetable, and
+immune to damage for 2s (100s cooldown). Cannot
+move or cast skills while frozen, but skills already cast
+won't be interrupted.
+
+34#Fleeting Time
+Price:2050
+Category: Magic
+Core:
++30 Adaptive Attack
++600 H p
++15% Cooldown Reduction
+Unique Passive - Timestream: Hero kills or assists
+reduce the Ultimate's current cooldown by 30%.
+
+35#Sky Piercer
+Price:1500
+Category: Magic
+Core:
++60 Adaptive Attack
++15 Movement Speed
+Unique Passive - Lethality: After dealing damage to an
+enemy hero, executes the hero if their HP is lower than
+4%. Gains 10 stack(s) of Lethality for each kill and loses
+30% of current stack(s) for each death. Each stack of
+Lethality increases the HP threshold of the execute
+effect by 0.1%, stacking up to 80 times.
+
+36#Feather of Heaven
+Price:2030
+Category: Magic
+Core:
++60 Magic Power
++20% Attack Speed
++10% Lifesteal
++5% Cooldown Reduction
+IJnique Passive - Affliction: Each Basic Attack deals
+extra 50 (+30% Total Magic Power) Magic Damage.
+Unique Passive - Impulse: Basic Attacks grant 6% extra
+Attack Speed for 3s, capped at 5 stacks.
+
+37#Enchanted Talisman
+Price:2070
+Category: Magic
+Core:
++75 Magic Power
++300 HP
++15% Cooldown Reduction
+Unique Passive - Mana Spring: Regenerates 15% Max
+Mana every IOS.
+Unique Passive - Magic Mastery: Max Cooldown
+Reduction is increased by 5%.
+
+38#Fleeting Time
+Price:2050
+Category: Defense
+Core:
++30 Adaptive Attack
++600 HP
++15% Cooldown Reduction
+Unique Passive - Timestream: Hero kills or assists
+reduce the Ultimate's current cooldown by 30%.
+
+39#Radiant Armor
+Price:1880
+Category: Defense
+Core:
++950 HP
++40 Magic Defense
++12 HP Regen
+Unique Passive - Holy Blessing: Taking Magic Damage
+grants 5(+1*Hero Level) Magic Defense for 5s, up to 6
+stacks (can only gain I stack(s) every 0.4s).
+
+40#Chastise Pauldron
+Price:2100
+Category: Defense
+Core:
++900 H p
++40 Physical Defense
+Unique Passive - Chastise: Taking damage will reduce
+the Attack Speed and Attack Speed cap of the attacker
+to 75% of normal for 2s.
+Unique Passive - Redemption: When incoming damage
+reduces HP below 30%, recover 20% Max HP over the
+next 2s. This effect has a 60s cooldown.
+
+41#Brute Force Breastplate
+Price:22070
+Category: Defense
+Core:
++800 HP
++20 Physical Defense
++10% Cooldown Reduction
+Unique Passive - Brute Force: After dealing damage,
+gain 1 stack every second for 4s, up to 6 stacks. Each
+stack grants 8 Adaptive Attack and 2% Movement
+Speed. At full stacks, gain extra 25% Control Duration
+Reduction.
+
+42#Immortality
+Price:2120
+Category: Defense
+Core:
++850 HP
++15 Physical Defense
+Unique Passive - Immortal: Resurrect 2.5s upon death
+and get 16% HP and a shield that can absorb
+150(+70*Hero Level) damage. Shield lasts 3s. This
+effect has a 210s cooldown.
+
+43#Dominance Ice
+Price:2010
+Category: Defense
+Core:
++40 Physical Defense
++40 Magic Defense
++5% Movement Speed
+Unique Passive - Fortress Shield: For each enemy hero
+within 5 units, Physical & Magic Defense is increased by
+8, up to 40.
+Unique Passive - Lifebane: Reduces shield and HP
+Regen of nearby enemies within 5 units to 60% of
+normal for Is.
+
+44#Athena's Shield
+Price:2150
+Category: Defense
+Core:
++900 H p
++48 Magic Defense
++2 HP Regen
+Unique Passive - Shield: Upon taking Magic Damage
+from enemy hero skills or Basic Attacks, reduces Magic
+Damage taken by 25% for 3s (including the damage that
+triggers the effect). Regains this effect 5s after leaving
+combat.
+
+45#Oracle
+Price:1860
+Category: Defense
+Core:
++850 HP
++20 Physical Defense
++20 Magic Defense
++10% Cooldown Reduction
+Unique Passive - Bless: Received Shield and HP Regen
+effects are increased by 25%.
+
+46#Antique Cuirass
+Price:2170
+Category: Defense
+Core:
++920 HP
++40 Physical Defense
++4 HP Regen
+Unique Passive - Deter: When hit by a skill, reduces the
+attacker's Physical Damage by 6% for 2s (this effect
+stacks up to 3 times).
+
+47#Guardian Helmet
+Price:2500
+Category: Defense
+Core:
++1800 HP
++20 HP Regen
+Unique Passive - Recovery: After 5s out of combat,
+recover (2.5% Total HP) HP per second.
+Unique Passive - Defender: Upon taking more than 500
+damage in a single instance, recover 30 (+0.3% Total
+HP)% HP from the excess damage beyond that amount.
+
+48#Cursed Helmet
+Price:1910
+Category: Defense
+Core:
++1200 HP
++20 Magic Defense
+Unique Passive - Burning Soul: Deals (1.2% Total HP)
+Magic Damage to nearby enemies per second. This
+damage is increased by 125(+15*Hero Level)% against
+creeps and minions.
+Unique Passive - Curse: Dealing damage with Burning
+Soul will reduce the target's Hybrid Defense by 3 for 3s.
+Stacks up to 3 times.
+
+49#Thunder Belt
+Price:1820
+Category: Defense
+Core:
++600 HP
++15 Physical Defense
++15 Magic Defense
++20 Movement Speed
+Unique Passive - Thunderbolt: Every 4s, the next Basic
+Attack deals 50 (+100% Extra Physical Defense)
+(+100% Extra Magic Defense) extra True Damage to the
+target and enemies around them, and briefly slows them
+by 99%. Hybrid Defense permanently increases by 1
+each time the attack hits an enemy hero.
+This effect is reduced to 50% for Marksmen and Mages.
+
+50#Queen's Wings
+Price:2250
+Category: Defense
+Core:
++750 HP
++30 Adaptive Attack
++10% Cooldown Reduction
++10% spell vamp
+Unique Passive - Demonize: When HP drops below
+40%, gains 30% Damage Reduction for 3s and reduces
+skill cooldowns by 2s. The effect has a 60s cooldown.
+Unique Passive - Defiance: For every 1% HP lost,
+damage is increased by 0.25%, up to 15%.
+
+51#Blade Armor
+Price:1910
+Category: Defense
+Core:
++80 Physical Defense
+Unique Attribute: +20% Crit Damage Reduction
+Unique Passive - Bladed Armor: When struck by a Basic
+Attack, deals Physical Damage equal to 30 (+2% Total
+Physical Defense)% of the incoming damage (calculated
+before Damage Reduction) to the attacker and slows
+them by15% for 1s.
+
+52#Demon Boots
+Price:720
+Category: Movement
+Core:
++40 Movement Speed
++10 Mana Regen
+Equipment Blessing: None
+Unique Passive - Mysticism: Getting a kill or assist on
+an enemy Minion will restore 4% Mana. (An assist
+occurs when a Minion dies within 2s after taking damage
+from the hero.)
+
+53#Rapid Boots
+Price:720
+Category: Movement
+Core:
++55 Movement Speed
++35% Slow Reduction
++12 HP Regen
+Equipment Blessing: None
+
+54#Swift Boots
+Price:720
+Category: Movement
+Core:
++40 Movement Speed
++15% Attack Speed
+Equipment Blessing: None
+
+55#Arcane Boots
+Price:720
+Category: Movement
+Core:
++40 Movement Speed
++15 Magic Power
++10 Magic Penetration
+Equipment Blessing: None
+
+56#Magic Boots
+0 720
++40 Movement Speed
++10% Cooldown Reduction
++150 HP
+Equipment Blessing: None
+
+57#Tough Boots
+Price:720
+Category: Movement
+Core:
++40 Movement Speed
++18 Magic Defense
+Equipment Blessing: None
+Unique Passive - Fortitude: CC and Slow Duration
+reduced by 25%
+
+58#Warrior Boots
+Price:720
+Category: Movement
+Core:
++40 Movement Speed
++18 Physical Defense
+Equipment Blessing: None
+Unique Passive - Valor: Gain 4 extra Physical Defense
+for 3s when taking Physical Damage, up to 20.
+
+Jungle Item 1#Ice Retribution
+Equipment Blessing - Ice Retribution
+Equipment Blessing - Active: When cast on an enemy hero, deals 150% True Damage and steals 3
+Movement Speed (scales with level) for 100s.
+Retribution is upgraded when the total number of creep kills, hero kills, and assists reaches 52-80.
+
+Jungle Item 2#Flame Retribution
+Equipment Blessing - Flame Retribution
+Equipment Blessing - Active: When cast on an enemy hero, deals 150% True Damage and steals 3
+Physical Attack and Magic Power (scales with level) for 100s.
+Retribution is upgraded when the total number of creep kills, hero kills, and assists reaches 71-120.
+
+Jungle Item 3#Bloody Retribution
+Equipment Blessing - Bloody Retribution
+Equipment Blessing - Active: When cast on an enemy hero, deals 150% True Damage and steals HP
+equal to 3 + 300 of the caster's extra HP for 100s.
+Retribution is upgraded when the total number of creep kills, hero kills, and assists reaches 24%.
+
+Roam Item 1#Active - Conceal
+Equipment Blessing - Active - Conceal
+Equipment Blessing - Active: Conceals you and nearby allied heroes, granting 40% extra Movement
+Speed for 5s, or until taking or dealing damage.
+When near allied heroes, you gain 30% EXP and Gold from minions and creeps. Dealing damage to
+enemy heroes (Cooldown: 15s) or revealing enemies also grants EXP and Gold. This skill can only be
+unlocked after accumulating1000 Gold from Thriving.
+
+Roam Item 2#Passive -Encourage
+Equipment Blessing - Passive - Encourage
+Equipment Blessing - Passive: Grants you and nearby allied heroes 20 extra Hybrid Defense.
+When near allied heroes, you gain 30% EXP and Gold from minions and creeps. Dealing damage to
+enemy heroes (Cooldown: 15s) or revealing enemies also grants EXP and Gold. This skill can only be
+unlocked after accumulating 1000 Gold from Thriving.
+
+Roam Item 3#Passive - Favor
+Equipment Blessing - Passive - Favor
+Equipment Blessing - Passive: Every 15s, your next healing or shield skill recovers 400 extra HP to the
+lowest-HP allied hero within 5 units (including yourself). Skills that only take effect on yourself cannot
+trigger this effect.
+When near allied heroes, you gain 30% EXP and Gold from minions and creeps. Dealing damage to
+enemy heroes (Cooldown: 15s) or revealing enemies also grants EXP and Gold. This skill can only be
+unlocked after accumulating 1000 Gold from Thriving.
+
+Roam Item 4#Passive - Dire Hit
+Equipment Blessing - Passive - Dire Hit
+Equipment Blessing - Passive: Gains Force while moving, gradually increasing Movement Speed (up to
+40). Upon reaching 20 stacks, the next hit consumes all stacks to deal extra True Damage based on the
+number of stacks.
+When near allied heroes, you gain 30% EXP and Gold from minions and creeps. Dealing damage to
+enemy heroes (Cooldown: 15s) or revealing enemies also grants EXP and Gold. This skill can only be
+unlocked after getting 1000 Gold from Thriving.

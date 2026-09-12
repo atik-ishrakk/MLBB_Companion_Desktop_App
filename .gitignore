@@ -1,0 +1,18 @@
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Operational & lock files
+.launchgui.lock
+launcher_error.log
+
+# .NET Build output
+bin/
+obj/
+*.user

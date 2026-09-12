@@ -1,0 +1,93 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\mdati\\Desktop\\Try\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{DB9A7B3B-D889-E0B5-75AF-8D68A24724F8}|src\\MLBBCompanion.GUI\\MLBBCompanion.GUI.csproj|c:\\users\\mdati\\desktop\\try\\src\\mlbbcompanion.gui\\controls\\banslotcontrol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DB9A7B3B-D889-E0B5-75AF-8D68A24724F8}|src\\MLBBCompanion.GUI\\MLBBCompanion.GUI.csproj|solutionrelative:src\\mlbbcompanion.gui\\controls\\banslotcontrol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{DB9A7B3B-D889-E0B5-75AF-8D68A24724F8}|src\\MLBBCompanion.GUI\\MLBBCompanion.GUI.csproj|c:\\users\\mdati\\desktop\\try\\src\\mlbbcompanion.gui\\controls\\winprobabilitybar.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DB9A7B3B-D889-E0B5-75AF-8D68A24724F8}|src\\MLBBCompanion.GUI\\MLBBCompanion.GUI.csproj|solutionrelative:src\\mlbbcompanion.gui\\controls\\winprobabilitybar.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{95F8EC9F-A5A0-9E58-BC17-DE0370E2E3C3}|src\\MLBB.Tests\\MLBB.Tests.csproj|c:\\users\\mdati\\desktop\\try\\src\\mlbb.tests\\assetdimensiontests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{95F8EC9F-A5A0-9E58-BC17-DE0370E2E3C3}|src\\MLBB.Tests\\MLBB.Tests.csproj|solutionrelative:src\\mlbb.tests\\assetdimensiontests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 568,
+          "SelectedChildIndex": 3,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d7a5b3a8-44b4-4b53-9a3d-6b5832a8183c}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{3a0279d4-1a5c-4f7e-97c2-ec06915e7142}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "WinProbabilityBar.cs",
+              "DocumentMoniker": "C:\\Users\\mdati\\Desktop\\Try\\src\\MLBBCompanion.GUI\\Controls\\WinProbabilityBar.cs",
+              "RelativeDocumentMoniker": "src\\MLBBCompanion.GUI\\Controls\\WinProbabilityBar.cs",
+              "ToolTip": "C:\\Users\\mdati\\Desktop\\Try\\src\\MLBBCompanion.GUI\\Controls\\WinProbabilityBar.cs",
+              "RelativeToolTip": "src\\MLBBCompanion.GUI\\Controls\\WinProbabilityBar.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-11T05:45:28.842Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "BanSlotControl.cs",
+              "DocumentMoniker": "C:\\Users\\mdati\\Desktop\\Try\\src\\MLBBCompanion.GUI\\Controls\\BanSlotControl.cs",
+              "RelativeDocumentMoniker": "src\\MLBBCompanion.GUI\\Controls\\BanSlotControl.cs",
+              "ToolTip": "C:\\Users\\mdati\\Desktop\\Try\\src\\MLBBCompanion.GUI\\Controls\\BanSlotControl.cs",
+              "RelativeToolTip": "src\\MLBBCompanion.GUI\\Controls\\BanSlotControl.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB8AAAAgAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-11T05:44:47.185Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "AssetDimensionTests.cs",
+              "DocumentMoniker": "C:\\Users\\mdati\\Desktop\\Try\\src\\MLBB.Tests\\AssetDimensionTests.cs",
+              "RelativeDocumentMoniker": "src\\MLBB.Tests\\AssetDimensionTests.cs",
+              "ToolTip": "C:\\Users\\mdati\\Desktop\\Try\\src\\MLBB.Tests\\AssetDimensionTests.cs",
+              "RelativeToolTip": "src\\MLBB.Tests\\AssetDimensionTests.cs",
+              "ViewState": "AgIAADUAAAAAAAAAAAAwwFwAAAAtAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-11T05:44:23.223Z"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:3:0:{3a0279d4-1a5c-4f7e-97c2-ec06915e7142}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:5:0:{3a0279d4-1a5c-4f7e-97c2-ec06915e7142}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:4:0:{3a0279d4-1a5c-4f7e-97c2-ec06915e7142}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:2:0:{3a0279d4-1a5c-4f7e-97c2-ec06915e7142}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

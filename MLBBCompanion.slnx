@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MLBB.Tests/MLBB.Tests.csproj" />
+    <Project Path="src/MLBBCompanion.BLL/MLBBCompanion.BLL.csproj" />
+    <Project Path="src/MLBBCompanion.DAL/MLBBCompanion.DAL.csproj" />
+    <Project Path="src/MLBBCompanion.GUI/MLBBCompanion.GUI.csproj" />
+  </Folder>
+</Solution>
