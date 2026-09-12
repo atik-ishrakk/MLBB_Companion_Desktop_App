@@ -6,6 +6,11 @@ namespace MLBBCompanion.GUI.Services;
 /// <summary>
 /// Single-source-of-truth reactive draft state manager for the desktop Windows GUI.
 /// Handles 5v5 picks, bans, dynamic ban counts, spell/lane assignments, 6-item builds, and auto-sync.
+/// Core logic enforces:
+/// - Single assignment per hero across all picks and bans (no duplicates).
+/// - Unique lanes per team (EXP, Jungle, Mid, Gold, Roam cannot be duplicate on the same team).
+/// - Spells and Equipment can be multiple.
+/// - Locked state when all slots are filled to prevent draft pick from getting cleared.
 /// </summary>
 public class GuiDraftStateService
 {
@@ -29,6 +34,15 @@ public class GuiDraftStateService
     public string CurrentGamePhase { get; set; } = "Draft Pick";
     public bool AutoCvSync { get; set; } = false;
 
+    /// <summary>
+    /// When true, the draft is locked: picks, bans, and lanes cannot be cleared or overwritten
+    /// by CV background sync or phase changes. Triggered automatically when all 10 pick slots are filled.
+    /// </summary>
+    public bool IsLocked { get; set; } = false;
+
+    public bool AreAllPicksFilled =>
+        AllyPicks.All(h => h != null) && EnemyPicks.All(h => h != null);
+
     public event Action? OnStateChanged;
 
     public GuiDraftStateService(IHeroDataService heroDataService)
@@ -48,7 +62,7 @@ public class GuiDraftStateService
         SetBanFormat(5, suppressNotification: true);
     }
 
-    private static string GetDefaultLaneForSlot(int slotIndex) => slotIndex switch
+    public static string GetDefaultLaneForSlot(int slotIndex) => slotIndex switch
     {
         0 => "EXP",
         1 => "Jungle",
@@ -71,11 +85,56 @@ public class GuiDraftStateService
         if (!suppressNotification) NotifyChanged();
     }
 
+    /// <summary>
+    /// Returns all hero IDs currently picked or banned across both teams.
+    /// Optional excludeHeroId allows the slot currently being edited to not be blocked.
+    /// </summary>
+    public HashSet<string> GetAllAssignedHeroIds(string? excludeHeroId = null)
+    {
+        var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        for (int i = 0; i < 5; i++)
+        {
+            if (AllyPicks[i] != null && !string.Equals(AllyPicks[i]!.Id, excludeHeroId, StringComparison.OrdinalIgnoreCase))
+                set.Add(AllyPicks[i]!.Id);
+            if (EnemyPicks[i] != null && !string.Equals(EnemyPicks[i]!.Id, excludeHeroId, StringComparison.OrdinalIgnoreCase))
+                set.Add(EnemyPicks[i]!.Id);
+        }
+
+        for (int i = 0; i < AllyBans.Count; i++)
+        {
+            if (AllyBans[i] != null && !string.Equals(AllyBans[i]!.Id, excludeHeroId, StringComparison.OrdinalIgnoreCase))
+                set.Add(AllyBans[i]!.Id);
+        }
+
+        for (int i = 0; i < EnemyBans.Count; i++)
+        {
+            if (EnemyBans[i] != null && !string.Equals(EnemyBans[i]!.Id, excludeHeroId, StringComparison.OrdinalIgnoreCase))
+                set.Add(EnemyBans[i]!.Id);
+        }
+
+        return set;
+    }
+
+    /// <summary>
+    /// Selects a hero for a pick or ban slot. Enforces global hero uniqueness:
+    /// A hero pick or hero ban cannot be multiple. If the hero is already assigned to any other
+    /// slot on either team, it is automatically removed from the previous slot.
+    /// Automatically engages locked state once all 10 pick slots are filled.
+    /// </summary>
     public void SelectHero(string side, int slotIndex, Hero? hero, bool isBan = false)
     {
+        bool isAlly = side.Equals("ally", StringComparison.OrdinalIgnoreCase);
+
+        if (hero != null)
+        {
+            // Enforce hero uniqueness across all picks and bans on both teams
+            RemoveHeroFromOtherSlots(hero.Id, side, slotIndex, isBan);
+        }
+
         if (isBan)
         {
-            var banList = side.Equals("ally", StringComparison.OrdinalIgnoreCase) ? AllyBans : EnemyBans;
+            var banList = isAlly ? AllyBans : EnemyBans;
             if (slotIndex >= 0 && slotIndex < banList.Count)
             {
                 banList[slotIndex] = hero;
@@ -83,7 +142,7 @@ public class GuiDraftStateService
         }
         else
         {
-            var picks = side.Equals("ally", StringComparison.OrdinalIgnoreCase) ? AllyPicks : EnemyPicks;
+            var picks = isAlly ? AllyPicks : EnemyPicks;
             if (slotIndex >= 0 && slotIndex < 5)
             {
                 picks[slotIndex] = hero;
@@ -94,9 +153,71 @@ public class GuiDraftStateService
             }
         }
 
+        // Automatic lock transition when all 10 pick slots are filled
+        if (AreAllPicksFilled && !IsLocked)
+        {
+            IsLocked = true;
+        }
+
         NotifyChanged();
     }
 
+    private void RemoveHeroFromOtherSlots(string heroId, string targetSide, int targetSlotIndex, bool targetIsBan)
+    {
+        bool isTargetAlly = targetSide.Equals("ally", StringComparison.OrdinalIgnoreCase);
+
+        // Check Ally Picks
+        for (int i = 0; i < 5; i++)
+        {
+            if (!(isTargetAlly && !targetIsBan && i == targetSlotIndex))
+            {
+                if (AllyPicks[i] != null && string.Equals(AllyPicks[i]!.Id, heroId, StringComparison.OrdinalIgnoreCase))
+                {
+                    AllyPicks[i] = null;
+                }
+            }
+        }
+
+        // Check Enemy Picks
+        for (int i = 0; i < 5; i++)
+        {
+            if (!(!isTargetAlly && !targetIsBan && i == targetSlotIndex))
+            {
+                if (EnemyPicks[i] != null && string.Equals(EnemyPicks[i]!.Id, heroId, StringComparison.OrdinalIgnoreCase))
+                {
+                    EnemyPicks[i] = null;
+                }
+            }
+        }
+
+        // Check Ally Bans
+        for (int i = 0; i < AllyBans.Count; i++)
+        {
+            if (!(isTargetAlly && targetIsBan && i == targetSlotIndex))
+            {
+                if (AllyBans[i] != null && string.Equals(AllyBans[i]!.Id, heroId, StringComparison.OrdinalIgnoreCase))
+                {
+                    AllyBans[i] = null;
+                }
+            }
+        }
+
+        // Check Enemy Bans
+        for (int i = 0; i < EnemyBans.Count; i++)
+        {
+            if (!(!isTargetAlly && targetIsBan && i == targetSlotIndex))
+            {
+                if (EnemyBans[i] != null && string.Equals(EnemyBans[i]!.Id, heroId, StringComparison.OrdinalIgnoreCase))
+                {
+                    EnemyBans[i] = null;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Spells can be multiple across heroes. No uniqueness restriction.
+    /// </summary>
     public void SetSpell(string side, int slotIndex, string spellId)
     {
         var spells = side.Equals("ally", StringComparison.OrdinalIgnoreCase) ? AllySpells : EnemySpells;
@@ -107,16 +228,31 @@ public class GuiDraftStateService
         }
     }
 
+    /// <summary>
+    /// Lanes cannot be multiple on the same team. If another slot on the team already has this lane,
+    /// the lanes are swapped between the two slots so that EXP, Jungle, Mid, Gold, and Roam remain 100% unique.
+    /// </summary>
     public void SetLane(string side, int slotIndex, string lane)
     {
         var lanes = side.Equals("ally", StringComparison.OrdinalIgnoreCase) ? AllyLanes : EnemyLanes;
         if (slotIndex >= 0 && slotIndex < 5)
         {
+            string currentLane = lanes[slotIndex];
+            int existingSlot = Array.FindIndex(lanes, l => string.Equals(l, lane, StringComparison.OrdinalIgnoreCase));
+            if (existingSlot >= 0 && existingSlot != slotIndex)
+            {
+                // Swap lanes with the other slot so lanes are never duplicate on the team
+                lanes[existingSlot] = currentLane;
+            }
+
             lanes[slotIndex] = lane;
             NotifyChanged();
         }
     }
 
+    /// <summary>
+    /// Equipment can be multiple across heroes or within a hero build. No uniqueness restriction.
+    /// </summary>
     public void SetItem(string side, int slotIndex, int itemIndex, Item? item)
     {
         var builds = side.Equals("ally", StringComparison.OrdinalIgnoreCase) ? AllyEquipments : EnemyEquipments;
@@ -160,8 +296,19 @@ public class GuiDraftStateService
         }
     }
 
+    public void ToggleLock()
+    {
+        IsLocked = !IsLocked;
+        NotifyChanged();
+    }
+
+    /// <summary>
+    /// Resets draft picks, bans, equipment, spells, lanes, and unlocks the draft state.
+    /// </summary>
     public void ResetDraft()
     {
+        IsLocked = false;
+
         for (int i = 0; i < 5; i++)
         {
             AllyPicks[i] = null;

@@ -27,6 +27,7 @@
   <ItemGroup>
     <ProjectReference Include="..\MLBBCompanion.BLL\MLBBCompanion.BLL.csproj" />
     <ProjectReference Include="..\MLBBCompanion.DAL\MLBBCompanion.DAL.csproj" />
+    <ProjectReference Include="..\MLBBCompanion.GUI\MLBBCompanion.GUI.csproj" />
   </ItemGroup>
 
 </Project>

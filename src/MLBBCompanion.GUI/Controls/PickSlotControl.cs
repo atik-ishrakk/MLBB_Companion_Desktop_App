@@ -345,5 +345,12 @@ public class PickSlotControl : Control
             using var pen = new Pen(borderColor, _isSelected ? 2f : 1f);
             g.DrawPath(pen, path);
         }
+
+        // Esports team accent line on the left edge
+        var accentColor = _isEnemy ? CrimsonBorder : CyanBorder;
+        using (var stripeBrush = new SolidBrush(_isSelected ? accentColor : Color.FromArgb(140, accentColor)))
+        {
+            g.FillRectangle(stripeBrush, 1, 10, 3, Height - 20);
+        }
     }
 }

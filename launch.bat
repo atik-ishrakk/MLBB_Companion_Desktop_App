@@ -21,16 +21,16 @@ if /i "%~1"=="-b"      goto DO_BUILD
 if /i "%~1"=="build"   goto DO_BUILD
 
 :: Check if Release executable exists -> Launch instantly
-if exist "!RELEASE_EXE!" (
+if exist "%RELEASE_EXE%" (
     echo [INFO] Launching MLBB Companion Release build...
-    start "" "!RELEASE_EXE!"
+    start "" /D "%~dp0src\MLBBCompanion.GUI\bin\Release\net10.0-windows" "%RELEASE_EXE%"
     exit /b 0
 )
 
 :: Check if Debug executable exists -> Launch instantly
-if exist "!DEBUG_EXE!" (
+if exist "%DEBUG_EXE%" (
     echo [INFO] Launching MLBB Companion Debug build...
-    start "" "!DEBUG_EXE!"
+    start "" /D "%~dp0src\MLBBCompanion.GUI\bin\Debug\net10.0-windows" "%DEBUG_EXE%"
     exit /b 0
 )
 
@@ -54,15 +54,15 @@ if exist "%~dp0build.bat" (
 )
 
 :: Re-check after build
-if exist "!RELEASE_EXE!" (
+if exist "%RELEASE_EXE%" (
     echo [INFO] Launching MLBB Companion Release build...
-    start "" "!RELEASE_EXE!"
+    start "" /D "%~dp0src\MLBBCompanion.GUI\bin\Release\net10.0-windows" "%RELEASE_EXE%"
     exit /b 0
 )
 
-if exist "!DEBUG_EXE!" (
+if exist "%DEBUG_EXE%" (
     echo [INFO] Launching MLBB Companion Debug build...
-    start "" "!DEBUG_EXE!"
+    start "" /D "%~dp0src\MLBBCompanion.GUI\bin\Debug\net10.0-windows" "%DEBUG_EXE%"
     exit /b 0
 )
 

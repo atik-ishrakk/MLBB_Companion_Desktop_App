@@ -1834,6 +1834,29 @@ public class OpenCvVisionEngine : IVisionEngine
     {
         var (phase, subPhase, conf, details) = DetectPhase(frame);
 
+        // Strict Draft Gate: If not in draft pick / preparation, DO NOT run template matching against lobby or non-draft frames!
+        // This prevents false-positive picks and bans (e.g. Chou or Paquito detected from lobby room elements).
+        if (!GamePhase.IsInDraft(phase))
+        {
+            var standbyResult = new DraftScanResult
+            {
+                Bans = [],
+                AllyPicks = [],
+                EnemyPicks = [],
+                Lanes = [],
+                AllySpells = [],
+                EnemySpells = [],
+                DetectedPhase = phase,
+                DetectedSubPhase = subPhase,
+                Confidence = conf,
+                Details = details,
+                Status = "standby"
+            };
+
+            OnDraftDetectionUpdated?.Invoke(standbyResult);
+            return standbyResult;
+        }
+
         double banThresh = GetThresholdDouble(config.Thresholds, "ban_threshold", 0.45);
         var bans = MatchBans(frame, config, threshold: banThresh, topK: 5);
         var combinedBans = takenBans != null ? new HashSet<string>(takenBans, StringComparer.OrdinalIgnoreCase) : [];
@@ -1845,7 +1868,8 @@ public class OpenCvVisionEngine : IVisionEngine
             }
         }
 
-        var (allyPicks, enemyPicks, _) = MatchPicksJoint(frame, config, combinedBans, threshold: 0.50, topK: 5);
+        double pickThresh = GetThresholdDouble(config.Thresholds, "pick_threshold", 0.50);
+        var (allyPicks, enemyPicks, _) = MatchPicksJoint(frame, config, combinedBans, threshold: pickThresh, topK: 5);
         var lanes = DetectLanes(frame, config);
         var (allySpells, enemySpells) = DetectSpells(frame, config);
 

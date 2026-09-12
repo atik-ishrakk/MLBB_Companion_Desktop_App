@@ -13,6 +13,7 @@ public class HeroSelectDialog : Form
     private readonly List<Button> _filterButtons = new();
     private string _activeRole = "All";
     private readonly List<Hero> _allHeroes;
+    private readonly HashSet<string> _unavailableHeroIds;
 
     public Hero? SelectedHero { get; private set; }
     public bool ClearRequested { get; private set; }
@@ -25,14 +26,15 @@ public class HeroSelectDialog : Form
     private static readonly Color TextPrimary = Color.FromArgb(248, 250, 252);
     private static readonly Color TextMuted = Color.FromArgb(148, 163, 184);
 
-    public HeroSelectDialog(IHeroDataService heroDataService, string title = "SELECT HERO")
+    public HeroSelectDialog(IHeroDataService heroDataService, string title = "SELECT HERO", HashSet<string>? unavailableHeroIds = null)
     {
         _heroDataService = heroDataService;
         _allHeroes = _heroDataService.GetAllHeroes().OrderBy(h => h.Name).ToList();
+        _unavailableHeroIds = unavailableHeroIds ?? new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         Text = title;
-        Size = new Size(880, 640);
-        MinimumSize = new Size(720, 520);
+        Size = new Size(1180, 740);
+        MinimumSize = new Size(1080, 680);
         StartPosition = FormStartPosition.CenterParent;
         BackColor = BgDark;
         ForeColor = TextPrimary;
@@ -199,12 +201,14 @@ public class HeroSelectDialog : Form
 
     private Control CreateHeroCard(Hero hero)
     {
+        bool isUnavailable = _unavailableHeroIds.Contains(hero.Id);
+
         var panel = new Panel
         {
             Size = new Size(110, 110),
             Margin = new Padding(6),
-            BackColor = BgCard,
-            Cursor = Cursors.Hand
+            BackColor = isUnavailable ? Color.FromArgb(16, 22, 34) : BgCard,
+            Cursor = isUnavailable ? Cursors.No : Cursors.Hand
         };
 
         var imgHero = ImageCache.GetHeroImage(hero.Id, 64, 64, circular: false);
@@ -215,45 +219,70 @@ public class HeroSelectDialog : Form
             Image = imgHero,
             SizeMode = PictureBoxSizeMode.Zoom,
             BackColor = Color.Transparent,
-            Cursor = Cursors.Hand
+            Cursor = isUnavailable ? Cursors.No : Cursors.Hand
         };
 
         var lblName = new Label
         {
             Text = hero.Name,
             Font = new Font("Segoe UI", 8.2f, FontStyle.Bold),
-            ForeColor = TextPrimary,
+            ForeColor = isUnavailable ? Color.FromArgb(90, 105, 130) : TextPrimary,
             TextAlign = ContentAlignment.TopCenter,
             Size = new Size(106, 30),
             Location = new Point(2, 78),
             BackColor = Color.Transparent,
-            Cursor = Cursors.Hand
-        };
-
-        void OnSelect(object? sender, EventArgs e)
-        {
-            SelectedHero = hero;
-            DialogResult = DialogResult.OK;
-            Close();
-        }
-
-        panel.Click += OnSelect;
-        pic.Click += OnSelect;
-        lblName.Click += OnSelect;
-
-        panel.MouseEnter += (_, _) => { panel.BackColor = BgCardHover; };
-        panel.MouseLeave += (_, _) => { panel.BackColor = BgCard; };
-        pic.MouseEnter += (_, _) => { panel.BackColor = BgCardHover; };
-        lblName.MouseEnter += (_, _) => { panel.BackColor = BgCardHover; };
-
-        panel.Paint += (_, e) =>
-        {
-            using var pen = new Pen(BorderColor, 1);
-            e.Graphics.DrawRectangle(pen, 0, 0, panel.Width - 1, panel.Height - 1);
+            Cursor = isUnavailable ? Cursors.No : Cursors.Hand
         };
 
         panel.Controls.Add(pic);
         panel.Controls.Add(lblName);
+
+        if (isUnavailable)
+        {
+            var lblTaken = new Label
+            {
+                Text = "TAKEN",
+                Font = new Font("Segoe UI", 7.5f, FontStyle.Bold),
+                ForeColor = Color.FromArgb(244, 63, 94),
+                BackColor = Color.FromArgb(200, 15, 23, 42),
+                TextAlign = ContentAlignment.MiddleCenter,
+                Size = new Size(64, 20),
+                Location = new Point(23, 34),
+                Cursor = Cursors.No
+            };
+            lblTaken.Paint += (_, e) =>
+            {
+                using var p = new Pen(Color.FromArgb(244, 63, 94), 1);
+                e.Graphics.DrawRectangle(p, 0, 0, lblTaken.Width - 1, lblTaken.Height - 1);
+            };
+            panel.Controls.Add(lblTaken);
+            lblTaken.BringToFront();
+        }
+        else
+        {
+            void OnSelect(object? sender, EventArgs e)
+            {
+                SelectedHero = hero;
+                DialogResult = DialogResult.OK;
+                Close();
+            }
+
+            panel.Click += OnSelect;
+            pic.Click += OnSelect;
+            lblName.Click += OnSelect;
+
+            panel.MouseEnter += (_, _) => { panel.BackColor = BgCardHover; };
+            panel.MouseLeave += (_, _) => { panel.BackColor = BgCard; };
+            pic.MouseEnter += (_, _) => { panel.BackColor = BgCardHover; };
+            lblName.MouseEnter += (_, _) => { panel.BackColor = BgCardHover; };
+        }
+
+        panel.Paint += (_, e) =>
+        {
+            using var pen = new Pen(isUnavailable ? Color.FromArgb(50, 25, 35) : BorderColor, 1);
+            e.Graphics.DrawRectangle(pen, 0, 0, panel.Width - 1, panel.Height - 1);
+        };
+
         return panel;
     }
 }

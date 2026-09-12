@@ -17,9 +17,23 @@ static class Program
     static void Main()
     {
         var currentProc = Process.GetCurrentProcess();
+        try
+        {
+            File.AppendAllText(Path.Combine(AppContext.BaseDirectory, "startup.log"), 
+                $"[{DateTime.Now:HH:mm:ss.fff}] Main started: PID={currentProc.Id}, ProcessName='{currentProc.ProcessName}', BaseDir='{AppContext.BaseDirectory}'\n");
+        }
+        catch { }
+
         var existingProcs = Process.GetProcessesByName(currentProc.ProcessName)
             .Where(p => p.Id != currentProc.Id)
             .ToList();
+
+        try
+        {
+            File.AppendAllText(Path.Combine(AppContext.BaseDirectory, "startup.log"), 
+                $"[{DateTime.Now:HH:mm:ss.fff}] Existing procs count={existingProcs.Count}\n");
+        }
+        catch { }
 
         if (existingProcs.Count > 0)
         {
@@ -51,10 +65,12 @@ static class Program
         AppDomain.CurrentDomain.UnhandledException += (s, e) =>
         {
             try { File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "crash.log"), e.ExceptionObject?.ToString() ?? "null"); } catch { }
+            try { MessageBox.Show($"Unhandled Exception:\n{e.ExceptionObject}", "MLBB Companion Error", MessageBoxButtons.OK, MessageBoxIcon.Error); } catch { }
         };
         Application.ThreadException += (s, e) =>
         {
             try { File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "crash.log"), e.Exception.ToString()); } catch { }
+            try { MessageBox.Show($"Thread Exception:\n{e.Exception.Message}", "MLBB Companion Error", MessageBoxButtons.OK, MessageBoxIcon.Error); } catch { }
         };
 
         try
@@ -66,6 +82,7 @@ static class Program
         catch (Exception ex)
         {
             try { File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "crash.log"), ex.ToString()); } catch { }
+            try { MessageBox.Show($"Fatal startup error:\n{ex.Message}\n\nCheck crash.log for full details.", "MLBB Companion Startup Error", MessageBoxButtons.OK, MessageBoxIcon.Error); } catch { }
         }
     }    
 }

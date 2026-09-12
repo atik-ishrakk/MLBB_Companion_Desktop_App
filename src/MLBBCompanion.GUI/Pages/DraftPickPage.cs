@@ -19,6 +19,7 @@ public class DraftPickPage : UserControl
     // Controls - Top Bar
     private readonly Button[] _btnBans = new Button[3];
     private readonly Button _btnCvSync;
+    private readonly Button _btnLockState;
     private readonly Button _btnReset;
 
     // Controls - 5v5 Board
@@ -76,22 +77,55 @@ public class DraftPickPage : UserControl
         Font = new Font("Segoe UI", 9f);
         DoubleBuffered = true;
 
-        // 1. Top Sub-Navigation Toolbar
+        // 1. Main Workspace Split (50% Left 5v5 Board, 50% Right Strategy Hub)
+        var mainSplit = new SplitContainer
+        {
+            Dock = DockStyle.Fill,
+            Orientation = Orientation.Vertical,
+            SplitterWidth = 6,
+            BackColor = Color.FromArgb(15, 23, 42)
+        };
+        Controls.Add(mainSplit);
+        mainSplit.BringToFront();
+
+        void AdjustSplitter50Percent()
+        {
+            if (mainSplit.Width > 200)
+            {
+                try { mainSplit.SplitterDistance = mainSplit.Width / 2; } catch { }
+            }
+        }
+
+        mainSplit.Resize += (_, _) => AdjustSplitter50Percent();
+        Load += (_, _) => AdjustSplitter50Percent();
+
+        // LEFT PANEL: 5v5 TEAMS
+        var pnlTeams = new Panel
+        {
+            Dock = DockStyle.Fill,
+            BackColor = BgDark,
+            AutoScroll = true,
+            Padding = new Padding(12)
+        };
+        mainSplit.Panel1.Controls.Add(pnlTeams);
+
+        // 2. Top Sub-Navigation Toolbar inside Draft Pick Panel
         var topBar = new Panel
         {
             Dock = DockStyle.Top,
-            Height = 48,
-            BackColor = BgDark,
-            Padding = new Padding(12, 8, 12, 8)
+            Height = 44,
+            BackColor = Color.Transparent,
+            Padding = new Padding(0, 0, 0, 8),
+            Margin = new Padding(0, 0, 0, 6)
         };
-        Controls.Add(topBar);
+        pnlTeams.Controls.Add(topBar);
 
         // LEFT: CV Sync Toggle Button
         _btnCvSync = new Button
         {
             Text = "⚡ AUTO-CV SYNC: OFF",
-            Size = new Size(165, 30),
-            Location = new Point(14, 9),
+            Size = new Size(160, 30),
+            Location = new Point(0, 6),
             BackColor = BgCard,
             ForeColor = TextMuted,
             FlatStyle = FlatStyle.Flat,
@@ -148,13 +182,31 @@ public class DraftPickPage : UserControl
             pnlBanFormat.Controls.Add(btn);
         }
 
-        // RIGHT: Reset Button on Top-Right Corner
+        // LOCK STATE: Manual/Auto Draft Lock Indicator & Toggle
+        _btnLockState = new Button
+        {
+            Text = "🔓 DRAFT UNLOCKED",
+            Size = new Size(140, 30),
+            Anchor = AnchorStyles.Top | AnchorStyles.Right,
+            Location = new Point(Math.Max(380, topBar.Width - 280), 6),
+            BackColor = BgCard,
+            ForeColor = TextMuted,
+            FlatStyle = FlatStyle.Flat,
+            Font = new Font("Segoe UI", 8f, FontStyle.Bold),
+            Cursor = Cursors.Hand
+        };
+        _btnLockState.FlatAppearance.BorderSize = 1;
+        _btnLockState.FlatAppearance.BorderColor = BorderColor;
+        _btnLockState.Click += (_, _) => _draftState.ToggleLock();
+        topBar.Controls.Add(_btnLockState);
+
+        // RIGHT: Reset Button on Right of Draft Panel
         _btnReset = new Button
         {
             Text = "🔄 RESET DRAFT",
             Size = new Size(125, 30),
             Anchor = AnchorStyles.Top | AnchorStyles.Right,
-            Location = new Point(topBar.Width - 140, 9),
+            Location = new Point(Math.Max(530, topBar.Width - 130), 6),
             BackColor = Color.FromArgb(51, 65, 85),
             ForeColor = TextPrimary,
             FlatStyle = FlatStyle.Flat,
@@ -167,42 +219,11 @@ public class DraftPickPage : UserControl
 
         topBar.Resize += (_, _) =>
         {
-            pnlBanFormat.Location = new Point(Math.Max(185, (topBar.Width - pnlBanFormat.Width) / 2), 8);
-            _btnReset.Location = new Point(topBar.Width - 140, 9);
+            pnlBanFormat.Location = new Point(Math.Max(170, (topBar.Width - pnlBanFormat.Width) / 2), 5);
+            _btnLockState.Location = new Point(Math.Max(380, topBar.Width - 280), 6);
+            _btnReset.Location = new Point(Math.Max(530, topBar.Width - 130), 6);
         };
-        pnlBanFormat.Location = new Point(Math.Max(185, (topBar.Width - pnlBanFormat.Width) / 2), 8);
-
-        // 2. Main Workspace Split (50% Left 5v5 Board, 50% Right Strategy Hub)
-        var mainSplit = new SplitContainer
-        {
-            Dock = DockStyle.Fill,
-            Orientation = Orientation.Vertical,
-            SplitterWidth = 6,
-            BackColor = Color.FromArgb(15, 23, 42)
-        };
-        Controls.Add(mainSplit);
-        mainSplit.BringToFront();
-
-        void AdjustSplitter50Percent()
-        {
-            if (mainSplit.Width > 200)
-            {
-                try { mainSplit.SplitterDistance = mainSplit.Width / 2; } catch { }
-            }
-        }
-
-        mainSplit.Resize += (_, _) => AdjustSplitter50Percent();
-        Load += (_, _) => AdjustSplitter50Percent();
-
-        // LEFT PANEL: 5v5 TEAMS
-        var pnlTeams = new Panel
-        {
-            Dock = DockStyle.Fill,
-            BackColor = BgDark,
-            AutoScroll = true,
-            Padding = new Padding(12)
-        };
-        mainSplit.Panel1.Controls.Add(pnlTeams);
+        pnlBanFormat.Location = new Point(Math.Max(170, (topBar.Width - pnlBanFormat.Width) / 2), 5);
 
         var teamsTable = new TableLayoutPanel
         {
@@ -230,11 +251,19 @@ public class DraftPickPage : UserControl
 
         var lblAllyHeader = new Label
         {
-            Text = "BLUE ALLY TEAM",
-            Font = new Font("Segoe UI", 10.5f, FontStyle.Bold),
+            Text = "ALLY",
+            Font = new Font("Segoe UI", 10f, FontStyle.Bold),
             ForeColor = CyanAccent,
-            Size = new Size(380, 26),
-            Margin = new Padding(4, 2, 0, 2)
+            BackColor = Color.FromArgb(16, 28, 48),
+            TextAlign = ContentAlignment.MiddleCenter,
+            Height = 32,
+            Size = new Size(380, 32),
+            Margin = new Padding(0, 2, 0, 4)
+        };
+        lblAllyHeader.Paint += (s, e) =>
+        {
+            using var pen = new Pen(CyanAccent, 1.5f);
+            e.Graphics.DrawRectangle(pen, 0, 0, lblAllyHeader.Width - 1, lblAllyHeader.Height - 1);
         };
         colAlly.Controls.Add(lblAllyHeader);
 
@@ -280,11 +309,19 @@ public class DraftPickPage : UserControl
 
         var lblEnemyHeader = new Label
         {
-            Text = "RED ENEMY TEAM",
-            Font = new Font("Segoe UI", 10.5f, FontStyle.Bold),
+            Text = "ENEMY",
+            Font = new Font("Segoe UI", 10f, FontStyle.Bold),
             ForeColor = RedAccent,
-            Size = new Size(380, 26),
-            Margin = new Padding(4, 2, 0, 2)
+            BackColor = Color.FromArgb(48, 16, 28),
+            TextAlign = ContentAlignment.MiddleCenter,
+            Height = 32,
+            Size = new Size(380, 32),
+            Margin = new Padding(0, 2, 0, 4)
+        };
+        lblEnemyHeader.Paint += (s, e) =>
+        {
+            using var pen = new Pen(RedAccent, 1.5f);
+            e.Graphics.DrawRectangle(pen, 0, 0, lblEnemyHeader.Width - 1, lblEnemyHeader.Height - 1);
         };
         colEnemy.Controls.Add(lblEnemyHeader);
 
@@ -316,13 +353,29 @@ public class DraftPickPage : UserControl
             pnlEnemyPicks.Controls.Add(pickSlot);
         }
 
-        colAlly.Resize += (_, _) =>
+        void ResizeTeamColumns()
         {
-            lblAllyHeader.Width = Math.Max(280, colAlly.Width - 10);
-            _pnlAllyBans.Width = Math.Max(280, colAlly.Width - 10);
-            lblEnemyHeader.Width = Math.Max(280, colEnemy.Width - 10);
-            _pnlEnemyBans.Width = Math.Max(280, colEnemy.Width - 10);
-        };
+            int targetWidthAlly = Math.Max(360, colAlly.Width - 12);
+            lblAllyHeader.Width = targetWidthAlly;
+            _pnlAllyBans.Width = targetWidthAlly;
+            for (int i = 0; i < 5; i++)
+            {
+                if (_allyPickSlots[i] != null) _allyPickSlots[i].Width = targetWidthAlly;
+            }
+
+            int targetWidthEnemy = Math.Max(360, colEnemy.Width - 12);
+            lblEnemyHeader.Width = targetWidthEnemy;
+            _pnlEnemyBans.Width = targetWidthEnemy;
+            for (int i = 0; i < 5; i++)
+            {
+                if (_enemyPickSlots[i] != null) _enemyPickSlots[i].Width = targetWidthEnemy;
+            }
+
+            UpdateBansCentering();
+        }
+
+        colAlly.Resize += (_, _) => ResizeTeamColumns();
+        colEnemy.Resize += (_, _) => ResizeTeamColumns();
 
         // RIGHT PANEL: STRATEGY HUB SIDEBAR
         var pnlSidebar = new Panel
@@ -503,19 +556,33 @@ public class DraftPickPage : UserControl
 
         for (int i = 0; i < _draftState.MaxBans; i++)
         {
-            var allyBan = new BanSlotControl(i, isEnemy: false) { Margin = new Padding(0, 0, 6, 0) };
+            var allyBan = new BanSlotControl(i, isEnemy: false) { Margin = new Padding(3, 2, 3, 2) };
             allyBan.BanSlotClicked += OnBanSlotClicked;
             _allyBanSlots.Add(allyBan);
             _pnlAllyBans.Controls.Add(allyBan);
 
-            var enemyBan = new BanSlotControl(i, isEnemy: true) { Margin = new Padding(0, 0, 6, 0) };
+            var enemyBan = new BanSlotControl(i, isEnemy: true) { Margin = new Padding(3, 2, 3, 2) };
             enemyBan.BanSlotClicked += OnBanSlotClicked;
             _enemyBanSlots.Add(enemyBan);
             _pnlEnemyBans.Controls.Add(enemyBan);
         }
 
+        UpdateBansCentering();
+
         _pnlAllyBans.ResumeLayout(true);
         _pnlEnemyBans.ResumeLayout(true);
+    }
+
+    private void UpdateBansCentering()
+    {
+        int slotWidth = 56; // 50px + 6px margin
+        int totalWidth = _draftState.MaxBans * slotWidth;
+
+        int allyPad = Math.Max(0, (_pnlAllyBans.Width - totalWidth) / 2);
+        _pnlAllyBans.Padding = new Padding(allyPad, 3, 0, 3);
+
+        int enemyPad = Math.Max(0, (_pnlEnemyBans.Width - totalWidth) / 2);
+        _pnlEnemyBans.Padding = new Padding(enemyPad, 3, 0, 3);
     }
 
     private void UpdateBanFormatButtons()
@@ -523,8 +590,9 @@ public class DraftPickPage : UserControl
         foreach (var b in _btnBans)
         {
             bool active = (int)b.Tag! == _draftState.MaxBans;
-            b.BackColor = active ? CyanAccent : BgCard;
-            b.ForeColor = active ? Color.Black : TextPrimary;
+            b.BackColor = active ? CyanAccent : Color.FromArgb(24, 34, 53);
+            b.ForeColor = active ? Color.Black : Color.FromArgb(203, 213, 225);
+            b.FlatAppearance.BorderColor = active ? CyanAccent : BorderColor;
         }
     }
 
@@ -540,7 +608,9 @@ public class DraftPickPage : UserControl
 
         slot.HeroAvatarClicked += (idx, isEnemy) =>
         {
-            using var dlg = new HeroSelectDialog(_heroDataService, isEnemy ? $"SELECT ENEMY HERO (SLOT {idx + 1})" : $"SELECT ALLY HERO (SLOT {idx + 1})");
+            var curHero = isEnemy ? _draftState.EnemyPicks[idx] : _draftState.AllyPicks[idx];
+            var unavailable = _draftState.GetAllAssignedHeroIds(curHero?.Id);
+            using var dlg = new HeroSelectDialog(_heroDataService, isEnemy ? $"SELECT ENEMY HERO (SLOT {idx + 1})" : $"SELECT ALLY HERO (SLOT {idx + 1})", unavailable);
             if (dlg.ShowDialog(this) == DialogResult.OK)
             {
                 _draftState.SelectHero(isEnemy ? "enemy" : "ally", idx, dlg.SelectedHero);
@@ -581,7 +651,9 @@ public class DraftPickPage : UserControl
 
     private void OnBanSlotClicked(int slotIndex, bool isEnemy)
     {
-        using var dlg = new HeroSelectDialog(_heroDataService, isEnemy ? $"BAN ENEMY HERO (SLOT {slotIndex + 1})" : $"BAN ALLY HERO (SLOT {slotIndex + 1})");
+        var curHero = isEnemy ? _draftState.EnemyBans[slotIndex] : _draftState.AllyBans[slotIndex];
+        var unavailable = _draftState.GetAllAssignedHeroIds(curHero?.Id);
+        using var dlg = new HeroSelectDialog(_heroDataService, isEnemy ? $"BAN ENEMY HERO (SLOT {slotIndex + 1})" : $"BAN ALLY HERO (SLOT {slotIndex + 1})", unavailable);
         if (dlg.ShowDialog(this) == DialogResult.OK)
         {
             _draftState.SelectHero(isEnemy ? "enemy" : "ally", slotIndex, dlg.SelectedHero, isBan: true);
@@ -590,6 +662,15 @@ public class DraftPickPage : UserControl
 
     private void SyncFromState()
     {
+        // 0. Sync Lock State Button
+        if (_btnLockState != null)
+        {
+            _btnLockState.Text = _draftState.IsLocked ? "🔒 DRAFT LOCKED" : "🔓 DRAFT UNLOCKED";
+            _btnLockState.BackColor = _draftState.IsLocked ? Color.FromArgb(161, 98, 7) : BgCard;
+            _btnLockState.ForeColor = _draftState.IsLocked ? Color.White : TextMuted;
+            _btnLockState.FlatAppearance.BorderColor = _draftState.IsLocked ? GoldAccent : BorderColor;
+        }
+
         // 1. Sync Ban Slots
         for (int i = 0; i < _allyBanSlots.Count; i++)
         {
@@ -856,8 +937,9 @@ public class DraftPickPage : UserControl
         if (_draftState.AutoCvSync)
         {
             _btnCvSync.Text = "⚡ AUTO-CV SYNC: ON";
-            _btnCvSync.BackColor = Color.FromArgb(14, 116, 144);
+            _btnCvSync.BackColor = Color.FromArgb(8, 145, 178);
             _btnCvSync.ForeColor = Color.White;
+            _btnCvSync.FlatAppearance.BorderColor = CyanAccent;
             _cvSyncTimer.Start();
         }
         else
@@ -865,6 +947,7 @@ public class DraftPickPage : UserControl
             _btnCvSync.Text = "⚡ AUTO-CV SYNC: OFF";
             _btnCvSync.BackColor = BgCard;
             _btnCvSync.ForeColor = TextMuted;
+            _btnCvSync.FlatAppearance.BorderColor = BorderColor;
             _cvSyncTimer.Stop();
         }
     }
@@ -907,7 +990,20 @@ public class DraftPickPage : UserControl
             }
         }
 
-        // 2. Real-Time Bans Sync (all slots up to MaxBans)
+        // Locked State Protection Gate:
+        // When all 10 pick slots are filled or when manually locked, NEVER clear or overwrite picks, bans, or lanes!
+        if (_draftState.IsLocked)
+        {
+            return;
+        }
+
+        // Strict Draft Gate: Only sync hero picks/bans if we are strictly in Draft Pick or Preparation Phase!
+        if (!GamePhase.IsInDraft(result.DetectedPhase))
+        {
+            return;
+        }
+
+        // 2. Real-Time Bans Sync (exact same result as Vision Engine)
         if (result.Bans != null && result.Bans.Count > 0)
         {
             for (int i = 0; i < result.Bans.Count; i++)
@@ -921,7 +1017,7 @@ public class DraftPickPage : UserControl
                 string? heroId = ban.HeroId;
                 if (!string.IsNullOrEmpty(heroId) &&
                     !string.Equals(heroId, "Empty", StringComparison.OrdinalIgnoreCase) &&
-                    ban.Confidence >= 0.50)
+                    !string.Equals(heroId, "Unknown", StringComparison.OrdinalIgnoreCase))
                 {
                     var h = _heroDataService.GetHeroById(heroId);
                     if (h != null)
@@ -936,7 +1032,7 @@ public class DraftPickPage : UserControl
             }
         }
 
-        // 3. Real-Time Ally Picks & Lanes & Spells
+        // 3. Real-Time Ally Picks & Lanes & Spells (exact same result as Vision Engine)
         if (result.AllyPicks != null)
         {
             for (int i = 0; i < result.AllyPicks.Count && i < 5; i++)
@@ -945,7 +1041,7 @@ public class DraftPickPage : UserControl
                 string? heroId = pick.HeroId;
                 if (!string.IsNullOrEmpty(heroId) &&
                     !string.Equals(heroId, "Empty", StringComparison.OrdinalIgnoreCase) &&
-                    pick.Confidence >= 0.45)
+                    !string.Equals(heroId, "Unknown", StringComparison.OrdinalIgnoreCase))
                 {
                     var h = _heroDataService.GetHeroById(heroId);
                     if (h != null && _draftState.AllyPicks[i]?.Id != h.Id)
@@ -970,7 +1066,7 @@ public class DraftPickPage : UserControl
             }
         }
 
-        // 4. Real-Time Enemy Picks & Spells
+        // 4. Real-Time Enemy Picks & Spells (exact same result as Vision Engine)
         if (result.EnemyPicks != null)
         {
             for (int i = 0; i < result.EnemyPicks.Count && i < 5; i++)
@@ -979,7 +1075,7 @@ public class DraftPickPage : UserControl
                 string? heroId = pick.HeroId;
                 if (!string.IsNullOrEmpty(heroId) &&
                     !string.Equals(heroId, "Empty", StringComparison.OrdinalIgnoreCase) &&
-                    pick.Confidence >= 0.45)
+                    !string.Equals(heroId, "Unknown", StringComparison.OrdinalIgnoreCase))
                 {
                     var h = _heroDataService.GetHeroById(heroId);
                     if (h != null && _draftState.EnemyPicks[i]?.Id != h.Id)

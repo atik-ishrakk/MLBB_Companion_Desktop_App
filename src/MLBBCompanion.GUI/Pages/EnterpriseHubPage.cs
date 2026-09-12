@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
 using MLBB.Core.Interfaces;
 using MLBBCompanion.BLL.Interfaces;
@@ -12,28 +13,39 @@ public class EnterpriseHubPage : UserControl
     private readonly IVisionEngine _visionEngine;
     private readonly System.Windows.Forms.Timer _telemetryTimer;
 
-    // OpenCV Tensor Engine Labels
-    private readonly Label _lblCvStatus;
-    private readonly Label _lblCvHeroes;
-    private readonly Label _lblCvPicks;
-    private readonly Label _lblCvBans;
-    private readonly Label _lblCvLanes;
-    private readonly Label _lblCvSpells;
-    private readonly Label _lblCvAnchors;
-    private readonly Label _lblCvNativeMem;
-    private readonly Label _lblCvPipeline;
-    private readonly Label _lblCvConcurrency;
+    // Service States (Default to disabled on opening, enabled manually per user requirement)
+    private bool _isBsRunning = false;
+    private bool _isVisionEnabled = false;
+    private bool _isAdbCaptureEnabled = false;
+    private bool _isMemWatchdogEnabled = false;
 
-    // Hardware & ADB Bridge Labels
-    private readonly Label _lblAdbStatus;
-    private readonly Label _lblAdbPort;
-    private readonly Label _lblAdbCapture;
-    private readonly Label _lblAdbResolution;
+    // Service Cards
+    private Panel _cardBs = null!;
+    private Panel _cardCv = null!;
+    private Panel _cardAdb = null!;
+    private Panel _cardMem = null!;
 
-    // Runtime & Memory Labels
-    private readonly Label _lblMemWorkingSet;
-    private readonly Label _lblMemGcHeap;
-    private readonly Label _lblMemArchitecture;
+    // Status Badges
+    private Label _lblBsStatus = null!;
+    private Label _lblCvStatus = null!;
+    private Label _lblAdbStatus = null!;
+    private Label _lblMemStatus = null!;
+
+    // OpenCV Metrics
+    private Label _lblCvHeroes = null!;
+    private Label _lblCvPicks = null!;
+    private Label _lblCvAnchors = null!;
+    private Label _lblCvNativeMem = null!;
+
+    // ADB Metrics
+    private Label _lblAdbPort = null!;
+    private Label _lblAdbCapture = null!;
+    private Label _lblAdbResolution = null!;
+
+    // Memory Metrics
+    private Label _lblMemWorkingSet = null!;
+    private Label _lblMemGcHeap = null!;
+    private Label _lblMemArchitecture = null!;
 
     // Console Log
     private readonly RichTextBox _txtConsole;
@@ -47,8 +59,9 @@ public class EnterpriseHubPage : UserControl
     // Theme Colors
     private static readonly Color BgDark = Color.FromArgb(10, 15, 29);
     private static readonly Color BgCard = Color.FromArgb(17, 24, 39);
-    private static readonly Color BgCardInner = Color.FromArgb(13, 19, 33);
-    private static readonly Color BorderColor = Color.FromArgb(30, 41, 59);
+    private static readonly Color BgCardHover = Color.FromArgb(24, 34, 53);
+    private static readonly Color BgCardActive = Color.FromArgb(18, 30, 50);
+    private static readonly Color BorderDefault = Color.FromArgb(40, 53, 76);
     private static readonly Color CyanAccent = Color.FromArgb(6, 182, 212);
     private static readonly Color GreenAccent = Color.FromArgb(52, 211, 153);
     private static readonly Color RedAccent = Color.FromArgb(225, 29, 72);
@@ -56,7 +69,7 @@ public class EnterpriseHubPage : UserControl
     private static readonly Color PurpleAccent = Color.FromArgb(168, 85, 247);
     private static readonly Color TextPrimary = Color.FromArgb(255, 255, 255);
     private static readonly Color TextSecondary = Color.FromArgb(226, 232, 240);
-    private static readonly Color TextMuted = Color.FromArgb(186, 205, 230);
+    private static readonly Color TextMuted = Color.FromArgb(148, 163, 184);
     private static readonly Color LabelTitleColor = Color.FromArgb(215, 225, 240);
 
     [DllImport("psapi.dll")]
@@ -74,13 +87,13 @@ public class EnterpriseHubPage : UserControl
         DoubleBuffered = true;
         Padding = new Padding(20);
 
-        // Header Panel
-        var pnlHeader = new Panel { Dock = DockStyle.Top, Height = 56, BackColor = Color.Transparent };
+        // 1. Header Panel
+        var pnlHeader = new Panel { Dock = DockStyle.Top, Height = 58, BackColor = Color.Transparent };
         Controls.Add(pnlHeader);
 
         var lblTitle = new Label
         {
-            Text = "ENTERPRISE COMMAND HUB & TELEMETRY",
+            Text = "DASHBOARD & SERVICES",
             Font = new Font("Segoe UI", 14f, FontStyle.Bold),
             ForeColor = TextPrimary,
             AutoSize = true,
@@ -90,7 +103,7 @@ public class EnterpriseHubPage : UserControl
 
         var lblSubtitle = new Label
         {
-            Text = "Unified real-time process manager, OpenCvSharp4 tensor telemetry, and BlueStacks hardware ADB bridge.",
+            Text = "Interactive service cards — click any card to enable or disable the service. Real-time telemetry & hardware management.",
             Font = new Font("Segoe UI", 8.8f),
             ForeColor = TextMuted,
             AutoSize = true,
@@ -98,118 +111,107 @@ public class EnterpriseHubPage : UserControl
         };
         pnlHeader.Controls.Add(lblSubtitle);
 
-        // Main Cards Container (Split into Left: Detailed OpenCV Tensor Card, Right: Stacked ADB + Memory Cards)
+        // 2. Main 4 Service Cards Grid (2 rows x 2 columns)
         var cardsTable = new TableLayoutPanel
         {
             Dock = DockStyle.Top,
-            Height = 295,
+            Height = 310,
             ColumnCount = 2,
-            RowCount = 1,
+            RowCount = 2,
             BackColor = Color.Transparent,
-            Margin = new Padding(0, 8, 0, 12)
+            Margin = new Padding(0, 6, 0, 10)
         };
-        cardsTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 55f));
-        cardsTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45f));
+        cardsTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50f));
+        cardsTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50f));
+        cardsTable.RowStyles.Add(new RowStyle(SizeType.Percent, 50f));
+        cardsTable.RowStyles.Add(new RowStyle(SizeType.Percent, 50f));
         Controls.Add(cardsTable);
 
-        // ==========================================
-        // CARD 1: OPENCV TENSOR INFERENCE ENGINE (Detailed)
-        // ==========================================
-        var pnlCvCard = CreateGlassCard("OPENCV TENSOR & VISION ENGINE", out _lblCvStatus, CyanAccent, "● PRE-WARMED • READY");
-        pnlCvCard.Margin = new Padding(0, 0, 10, 0);
-        cardsTable.Controls.Add(pnlCvCard, 0, 0);
+        // CARD 1: BLUESTACKS 5 EMULATOR SERVICE
+        _cardBs = CreateInteractiveServiceCard(
+            "BLUESTACKS 5 EMULATOR",
+            "● RUNNING • ONLINE",
+            "○ DISABLED • OFFLINE",
+            GreenAccent,
+            () => _isBsRunning,
+            async () => await ToggleBlueStacksAsync(),
+            out _lblBsStatus
+        );
+        _cardBs.Margin = new Padding(0, 0, 8, 8);
+        cardsTable.Controls.Add(_cardBs, 0, 0);
 
-        var tblCvMetrics = new TableLayoutPanel
-        {
-            Dock = DockStyle.Fill,
-            ColumnCount = 2,
-            RowCount = 5,
-            BackColor = Color.Transparent,
-            Padding = new Padding(6, 4, 6, 4)
-        };
-        tblCvMetrics.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50f));
-        tblCvMetrics.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50f));
-        for (int r = 0; r < 5; r++) tblCvMetrics.RowStyles.Add(new RowStyle(SizeType.Percent, 20f));
-        pnlCvCard.Controls.Add(tblCvMetrics);
+        var tblBsMetrics = CreateMetricGrid(2, 2);
+        _cardBs.Controls.Add(tblBsMetrics);
+        tblBsMetrics.BringToFront();
+        AddMetricRow(tblBsMetrics, 0, 0, "Emulator Host", "BlueStacks 5 (x64)", TextPrimary);
+        AddMetricRow(tblBsMetrics, 1, 0, "Daemon Port", "127.0.0.1:5555", CyanAccent);
+        AddMetricRow(tblBsMetrics, 0, 1, "Direct Render", "GDI Desktop Hook 1080p", TextSecondary);
+        AddMetricRow(tblBsMetrics, 1, 1, "Quick Action", "Click card to Start/Stop", GreenAccent);
+
+        // CARD 2: OPENCV VISION & TENSOR ENGINE
+        _cardCv = CreateInteractiveServiceCard(
+            "OPENCV VISION & TENSOR ENGINE",
+            "● ACTIVE • 136 HEROES",
+            "○ DISABLED • PAUSED",
+            CyanAccent,
+            () => _isVisionEnabled,
+            async () => await ToggleVisionEngineAsync(),
+            out _lblCvStatus
+        );
+        _cardCv.Margin = new Padding(8, 0, 0, 8);
+        cardsTable.Controls.Add(_cardCv, 1, 0);
+
+        var tblCvMetrics = CreateMetricGrid(2, 2);
+        _cardCv.Controls.Add(tblCvMetrics);
         tblCvMetrics.BringToFront();
+        _lblCvHeroes = AddMetricRow(tblCvMetrics, 0, 0, "Hero Classes", "136 Templates", CyanAccent);
+        _lblCvAnchors = AddMetricRow(tblCvMetrics, 1, 0, "Phase Anchors", "23 Active", GreenAccent);
+        _lblCvPicks = AddMetricRow(tblCvMetrics, 0, 1, "Pipeline", "CLAHE + ZNCC", TextSecondary);
+        _lblCvNativeMem = AddMetricRow(tblCvMetrics, 1, 1, "C++ Mat Buffer", "38.4 MB", AmberAccent);
 
-        _lblCvHeroes = AddMetricRow(tblCvMetrics, 0, 0, "Unique Hero Classes", "136 Heroes", CyanAccent);
-        _lblCvPicks = AddMetricRow(tblCvMetrics, 1, 0, "Pick Slot Tensors", "136 Templates", TextPrimary);
-        _lblCvBans = AddMetricRow(tblCvMetrics, 0, 1, "Ban Slot Tensors", "136 Circular", TextPrimary);
-        _lblCvLanes = AddMetricRow(tblCvMetrics, 1, 1, "Lane Badges", "5 Lanes (R, E, M, G, J)", TextPrimary);
-        _lblCvSpells = AddMetricRow(tblCvMetrics, 0, 2, "Battle Spells", "11 Spells", TextPrimary);
-        _lblCvAnchors = AddMetricRow(tblCvMetrics, 1, 2, "Phase Anchors", "23 Active Anchors", GreenAccent);
-        _lblCvNativeMem = AddMetricRow(tblCvMetrics, 0, 3, "Native Mat Buffer", "38.4 MB (C++ Heap)", AmberAccent);
-        _lblCvPipeline = AddMetricRow(tblCvMetrics, 1, 3, "Algorithm Pipeline", "CLAHE 2.0 + TM_CCOEFF_NORMED", TextSecondary);
-        _lblCvConcurrency = AddMetricRow(tblCvMetrics, 0, 4, "Reader Concurrency", "Lock-Free (Interlocked)", GreenAccent);
-        AddMetricRow(tblCvMetrics, 1, 4, "Target Resolution", "1920 × 1080 (16:9 FHD)", TextSecondary);
+        // CARD 3: ADB BRIDGE SCREEN CAPTURE
+        _cardAdb = CreateInteractiveServiceCard(
+            "ADB BRIDGE SCREEN CAPTURE",
+            "● CAPTURE RUNNING",
+            "○ DISABLED • STANDBY",
+            GreenAccent,
+            () => _isAdbCaptureEnabled,
+            async () => await ToggleAdbCaptureAsync(),
+            out _lblAdbStatus
+        );
+        _cardAdb.Margin = new Padding(0, 8, 8, 0);
+        cardsTable.Controls.Add(_cardAdb, 0, 1);
 
-        // ==========================================
-        // RIGHT CONTAINER: ADB BRIDGE + MEMORY CARDS
-        // ==========================================
-        var pnlRightStack = new TableLayoutPanel
-        {
-            Dock = DockStyle.Fill,
-            RowCount = 2,
-            ColumnCount = 1,
-            BackColor = Color.Transparent,
-            Margin = new Padding(0)
-        };
-        pnlRightStack.RowStyles.Add(new RowStyle(SizeType.Percent, 50f));
-        pnlRightStack.RowStyles.Add(new RowStyle(SizeType.Percent, 50f));
-        cardsTable.Controls.Add(pnlRightStack, 1, 0);
-
-        // CARD 2: ADB BRIDGE & SCREEN CAPTURE
-        var pnlAdbCard = CreateGlassCard("ADB BRIDGE & SCREEN CAPTURE", out _lblAdbStatus, GreenAccent, "● BRIDGE ACTIVE");
-        pnlAdbCard.Margin = new Padding(0, 0, 0, 6);
-        pnlRightStack.Controls.Add(pnlAdbCard, 0, 0);
-
-        var tblAdbMetrics = new TableLayoutPanel
-        {
-            Dock = DockStyle.Fill,
-            ColumnCount = 2,
-            RowCount = 2,
-            BackColor = Color.Transparent,
-            Padding = new Padding(6, 2, 6, 2)
-        };
-        tblAdbMetrics.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50f));
-        tblAdbMetrics.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50f));
-        tblAdbMetrics.RowStyles.Add(new RowStyle(SizeType.Percent, 50f));
-        tblAdbMetrics.RowStyles.Add(new RowStyle(SizeType.Percent, 50f));
-        pnlAdbCard.Controls.Add(tblAdbMetrics);
+        var tblAdbMetrics = CreateMetricGrid(2, 2);
+        _cardAdb.Controls.Add(tblAdbMetrics);
         tblAdbMetrics.BringToFront();
-
-        _lblAdbPort = AddMetricRow(tblAdbMetrics, 0, 0, "Daemon Port", "127.0.0.1:5555", CyanAccent);
-        _lblAdbCapture = AddMetricRow(tblAdbMetrics, 1, 0, "Capture Pipeline", "Win32 GDI BitBlt", TextPrimary);
+        _lblAdbPort = AddMetricRow(tblAdbMetrics, 0, 0, "Bridge Port", "127.0.0.1:5555", CyanAccent);
+        _lblAdbCapture = AddMetricRow(tblAdbMetrics, 1, 0, "Capture Mode", "Win32 BitBlt", TextPrimary);
         _lblAdbResolution = AddMetricRow(tblAdbMetrics, 0, 1, "Viewport Frame", "1920x1080 32bpp", TextSecondary);
-        AddMetricRow(tblAdbMetrics, 1, 1, "Direct ADB Transfer", "Low-Latency Direct Memory", GreenAccent);
+        AddMetricRow(tblAdbMetrics, 1, 1, "Memory Transfer", "Direct Byte Buffer", GreenAccent);
 
-        // CARD 3: RUNTIME PERFORMANCE & MEMORY COMPACTION
-        var pnlMemCard = CreateGlassCard("RUNTIME PERFORMANCE & MEMORY", out _lblMemWorkingSet, PurpleAccent, "86 MB RAM");
-        pnlMemCard.Margin = new Padding(0, 6, 0, 0);
-        pnlRightStack.Controls.Add(pnlMemCard, 0, 1);
+        // CARD 4: RUNTIME PERFORMANCE & MEMORY WATCHDOG
+        _cardMem = CreateInteractiveServiceCard(
+            "MEMORY WATCHDOG & OPTIMIZATION",
+            "● WATCHDOG ACTIVE",
+            "○ DISABLED • IDLE",
+            PurpleAccent,
+            () => _isMemWatchdogEnabled,
+            async () => await ToggleMemoryWatchdogAsync(),
+            out _lblMemStatus
+        );
+        _cardMem.Margin = new Padding(8, 8, 0, 0);
+        cardsTable.Controls.Add(_cardMem, 1, 1);
 
-        var tblMemMetrics = new TableLayoutPanel
-        {
-            Dock = DockStyle.Fill,
-            ColumnCount = 2,
-            RowCount = 2,
-            BackColor = Color.Transparent,
-            Padding = new Padding(6, 2, 6, 2)
-        };
-        tblMemMetrics.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50f));
-        tblMemMetrics.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50f));
-        tblMemMetrics.RowStyles.Add(new RowStyle(SizeType.Percent, 50f));
-        tblMemMetrics.RowStyles.Add(new RowStyle(SizeType.Percent, 50f));
-        pnlMemCard.Controls.Add(tblMemMetrics);
+        var tblMemMetrics = CreateMetricGrid(2, 2);
+        _cardMem.Controls.Add(tblMemMetrics);
         tblMemMetrics.BringToFront();
+        _lblMemWorkingSet = AddMetricRow(tblMemMetrics, 0, 0, "Working Set", "86 MB RAM", PurpleAccent);
+        _lblMemGcHeap = AddMetricRow(tblMemMetrics, 1, 0, "Managed Heap", "Server GC Gen 2", TextPrimary);
+        _lblMemArchitecture = AddMetricRow(tblMemMetrics, 0, 1, "CLR Target", ".NET 10.0 x64", CyanAccent);
+        AddMetricRow(tblMemMetrics, 1, 1, "Compaction", "EmptyWorkingSet", GreenAccent);
 
-        _lblMemGcHeap = AddMetricRow(tblMemMetrics, 0, 0, "Managed GC Heap", "Server GC Gen 0/1/2", TextPrimary);
-        _lblMemArchitecture = AddMetricRow(tblMemMetrics, 1, 0, "CLR Runtime", ".NET 10.0 x64", CyanAccent);
-        AddMetricRow(tblMemMetrics, 0, 1, "Memory Compaction", "Win32 EmptyWorkingSet", GreenAccent);
-        AddMetricRow(tblMemMetrics, 1, 1, "Unmanaged DLL Heap", "OpenCvSharp4 Native C++", AmberAccent);
-
-        // Action Operations Bar
+        // 3. Action Operations Bar
         var pnlActions = new FlowLayoutPanel
         {
             Dock = DockStyle.Top,
@@ -232,7 +234,7 @@ public class EnterpriseHubPage : UserControl
         _btnEmergencyStop = CreateActionButton("⚠️ EMERGENCY STOP", Color.FromArgb(159, 18, 57), Color.White, async (_, _) => await EmergencyStopAsync());
         pnlActions.Controls.Add(_btnEmergencyStop);
 
-        // Real-Time Diagnostic Console Log
+        // 4. Real-Time Diagnostic Console Log
         var lblConsoleTitle = new Label
         {
             Text = "DIAGNOSTIC SYSTEM EVENT LOG",
@@ -256,64 +258,120 @@ public class EnterpriseHubPage : UserControl
         Controls.Add(_txtConsole);
         _txtConsole.BringToFront();
 
-        // Polling Timer
+        // Polling Timer for Telemetry
         _telemetryTimer = new System.Windows.Forms.Timer { Interval = 1500 };
         _telemetryTimer.Tick += async (_, _) => await RefreshTelemetryAsync();
         _telemetryTimer.Start();
 
-        Log("MLBB Companion Enterprise Suite initialized.", CyanAccent);
-        Log("OpenCvSharp4 tensor caches pre-warmed in unmanaged memory.", GreenAccent);
+        Log("MLBB Companion Enterprise Dashboard initialized.", CyanAccent);
+        Log("All services are idle by default. Click any card to enable or disable its service.", TextSecondary);
         UpdateCvEngineMetrics();
+        UpdateAllCardStates();
     }
 
-    private Panel CreateGlassCard(string title, out Label lblStatus, Color statusColor, string initialStatus)
+    private Panel CreateInteractiveServiceCard(
+        string title,
+        string textActive,
+        string textInactive,
+        Color accentColor,
+        Func<bool> isEnabledFunc,
+        Func<Task> onToggleAction,
+        out Label lblStatusOut)
     {
         var panel = new Panel
         {
             Dock = DockStyle.Fill,
             BackColor = BgCard,
-            Padding = new Padding(12)
+            Padding = new Padding(12),
+            Cursor = Cursors.Hand
         };
 
         var pnlHeader = new Panel
         {
             Dock = DockStyle.Top,
-            Height = 32,
-            BackColor = Color.Transparent
+            Height = 30,
+            BackColor = Color.Transparent,
+            Cursor = Cursors.Hand
         };
         panel.Controls.Add(pnlHeader);
 
-        lblStatus = new Label
+        var lblStatus = new Label
         {
-            Text = initialStatus,
-            Font = new Font("Segoe UI", 9f, FontStyle.Bold),
-            ForeColor = statusColor,
+            Text = isEnabledFunc() ? textActive : textInactive,
+            Font = new Font("Segoe UI", 8.5f, FontStyle.Bold),
+            ForeColor = isEnabledFunc() ? accentColor : TextMuted,
             Dock = DockStyle.Right,
             AutoSize = true,
             TextAlign = ContentAlignment.MiddleRight,
-            Padding = new Padding(0, 4, 0, 0)
+            Cursor = Cursors.Hand,
+            Padding = new Padding(0, 3, 0, 0)
         };
         pnlHeader.Controls.Add(lblStatus);
+        lblStatusOut = lblStatus;
 
         var lblTitle = new Label
         {
             Text = title,
-            Font = new Font("Segoe UI", 9f, FontStyle.Bold),
-            ForeColor = LabelTitleColor,
+            Font = new Font("Segoe UI", 9.2f, FontStyle.Bold),
+            ForeColor = TextPrimary,
             Dock = DockStyle.Left,
             AutoSize = true,
             TextAlign = ContentAlignment.MiddleLeft,
-            Padding = new Padding(0, 4, 0, 0)
+            Cursor = Cursors.Hand,
+            Padding = new Padding(0, 3, 0, 0)
         };
         pnlHeader.Controls.Add(lblTitle);
 
+        // Click handler that toggles the service
+        async void HandleToggle(object? sender, EventArgs e)
+        {
+            try
+            {
+                await onToggleAction();
+            }
+            catch (Exception ex)
+            {
+                Log($"Error toggling {title}: {ex.Message}", RedAccent);
+            }
+        }
+
+        panel.Click += HandleToggle;
+        pnlHeader.Click += HandleToggle;
+        lblTitle.Click += HandleToggle;
+        lblStatus.Click += HandleToggle;
+
+        panel.MouseEnter += (_, _) => { panel.BackColor = isEnabledFunc() ? BgCardActive : BgCardHover; };
+        panel.MouseLeave += (_, _) => { panel.BackColor = isEnabledFunc() ? BgCardActive : BgCard; };
+        pnlHeader.MouseEnter += (_, _) => { panel.BackColor = isEnabledFunc() ? BgCardActive : BgCardHover; };
+        pnlHeader.MouseLeave += (_, _) => { panel.BackColor = isEnabledFunc() ? BgCardActive : BgCard; };
+
         panel.Paint += (_, e) =>
         {
-            using var pen = new Pen(BorderColor, 1);
+            bool active = isEnabledFunc();
+            var borderCol = active ? accentColor : BorderDefault;
+            float penWidth = active ? 2f : 1f;
+            using var pen = new Pen(borderCol, penWidth);
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             e.Graphics.DrawRectangle(pen, 0, 0, panel.Width - 1, panel.Height - 1);
         };
 
         return panel;
+    }
+
+    private TableLayoutPanel CreateMetricGrid(int cols, int rows)
+    {
+        var tbl = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = cols,
+            RowCount = rows,
+            BackColor = Color.Transparent,
+            Padding = new Padding(4, 2, 4, 2),
+            Cursor = Cursors.Hand
+        };
+        for (int c = 0; c < cols; c++) tbl.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f / cols));
+        for (int r = 0; r < rows; r++) tbl.RowStyles.Add(new RowStyle(SizeType.Percent, 100f / rows));
+        return tbl;
     }
 
     private Label AddMetricRow(TableLayoutPanel table, int col, int row, string label, string value, Color valColor)
@@ -324,26 +382,29 @@ public class EnterpriseHubPage : UserControl
             BackColor = Color.Transparent,
             Margin = new Padding(2),
             WrapContents = false,
-            FlowDirection = FlowDirection.LeftToRight
+            FlowDirection = FlowDirection.LeftToRight,
+            Cursor = Cursors.Hand
         };
 
         var lblName = new Label
         {
             Text = label + ":",
-            Font = new Font("Segoe UI", 8.8f, FontStyle.Regular),
+            Font = new Font("Segoe UI", 8.5f, FontStyle.Regular),
             ForeColor = LabelTitleColor,
             AutoSize = true,
-            Margin = new Padding(0, 2, 6, 0)
+            Margin = new Padding(0, 2, 5, 0),
+            Cursor = Cursors.Hand
         };
         pnl.Controls.Add(lblName);
 
         var lblVal = new Label
         {
             Text = value,
-            Font = new Font("Segoe UI", 8.8f, FontStyle.Bold),
+            Font = new Font("Segoe UI", 8.5f, FontStyle.Bold),
             ForeColor = valColor,
             AutoSize = true,
-            Margin = new Padding(0, 2, 0, 0)
+            Margin = new Padding(0, 2, 0, 0),
+            Cursor = Cursors.Hand
         };
         pnl.Controls.Add(lblVal);
 
@@ -372,6 +433,101 @@ public class EnterpriseHubPage : UserControl
         return btn;
     }
 
+    private async Task ToggleBlueStacksAsync()
+    {
+        if (_isBsRunning)
+        {
+            Log("Stopping BlueStacks 5 emulator...", AmberAccent);
+            await _launcherService.CloseBlueStacksAsync();
+            _isBsRunning = false;
+            Log("BlueStacks 5 stopped.", TextMuted);
+        }
+        else
+        {
+            Log("Launching BlueStacks 5 Android Emulator...", CyanAccent);
+            await _launcherService.LaunchBlueStacksAsync();
+            _isBsRunning = true;
+            Log("BlueStacks 5 launch sequence initiated.", GreenAccent);
+        }
+        UpdateAllCardStates();
+        await RefreshTelemetryAsync();
+    }
+
+    private Task ToggleVisionEngineAsync()
+    {
+        _isVisionEnabled = !_isVisionEnabled;
+        if (_isVisionEnabled)
+        {
+            Log("Enabling OpenCV Vision Engine...", CyanAccent);
+            ReloadTensors();
+            Log("OpenCV Vision Engine enabled & template tensors active.", GreenAccent);
+        }
+        else
+        {
+            Log("OpenCV Vision Engine paused.", AmberAccent);
+        }
+        UpdateAllCardStates();
+        return Task.CompletedTask;
+    }
+
+    private Task ToggleAdbCaptureAsync()
+    {
+        _isAdbCaptureEnabled = !_isAdbCaptureEnabled;
+        if (_isAdbCaptureEnabled)
+        {
+            Log("ADB Bridge Screen Capture service enabled.", GreenAccent);
+        }
+        else
+        {
+            Log("ADB Bridge Screen Capture service disabled.", TextMuted);
+        }
+        UpdateAllCardStates();
+        return Task.CompletedTask;
+    }
+
+    private Task ToggleMemoryWatchdogAsync()
+    {
+        _isMemWatchdogEnabled = !_isMemWatchdogEnabled;
+        if (_isMemWatchdogEnabled)
+        {
+            Log("Runtime Memory Watchdog enabled. Compacting working set...", PurpleAccent);
+            TrimMemory();
+        }
+        else
+        {
+            Log("Runtime Memory Watchdog disabled.", TextMuted);
+        }
+        UpdateAllCardStates();
+        return Task.CompletedTask;
+    }
+
+    private void UpdateAllCardStates()
+    {
+        // BS5 Card
+        _lblBsStatus.Text = _isBsRunning ? "● RUNNING • ONLINE" : "○ DISABLED • OFFLINE";
+        _lblBsStatus.ForeColor = _isBsRunning ? GreenAccent : TextMuted;
+        _cardBs.BackColor = _isBsRunning ? BgCardActive : BgCard;
+        _cardBs.Invalidate();
+
+        // CV Card
+        _lblCvStatus.Text = _isVisionEnabled ? "● ACTIVE • 136 HEROES" : "○ DISABLED • PAUSED";
+        _lblCvStatus.ForeColor = _isVisionEnabled ? CyanAccent : TextMuted;
+        _cardCv.BackColor = _isVisionEnabled ? BgCardActive : BgCard;
+        _cardCv.Invalidate();
+
+        // ADB Card
+        _lblAdbStatus.Text = _isAdbCaptureEnabled ? "● CAPTURE RUNNING" : "○ DISABLED • STANDBY";
+        _lblAdbStatus.ForeColor = _isAdbCaptureEnabled ? GreenAccent : TextMuted;
+        _cardAdb.BackColor = _isAdbCaptureEnabled ? BgCardActive : BgCard;
+        _cardAdb.Invalidate();
+
+        // Memory Card
+        _lblMemStatus.Text = _isMemWatchdogEnabled ? "● WATCHDOG ACTIVE" : "○ DISABLED • IDLE";
+        _lblMemStatus.ForeColor = _isMemWatchdogEnabled ? PurpleAccent : TextMuted;
+        _cardMem.BackColor = _isMemWatchdogEnabled ? BgCardActive : BgCard;
+        _cardMem.Invalidate();
+    }
+
     private void UpdateCvEngineMetrics()
     {
         try
@@ -379,16 +535,13 @@ public class EnterpriseHubPage : UserControl
             var counts = _visionEngine.GetTemplateCounts();
             if (counts.TryGetValue("unique_heroes", out int uh)) _lblCvHeroes.Text = $"{uh} Heroes";
             if (counts.TryGetValue("picks", out int p)) _lblCvPicks.Text = $"{p} Templates";
-            if (counts.TryGetValue("bans", out int b)) _lblCvBans.Text = $"{b} Circular";
-            if (counts.TryGetValue("lanes", out int l)) _lblCvLanes.Text = $"{l} Lanes";
-            if (counts.TryGetValue("spells", out int s)) _lblCvSpells.Text = $"{s} Spells";
-            if (counts.TryGetValue("anchors", out int a)) _lblCvAnchors.Text = $"{a} Active Anchors";
+            if (counts.TryGetValue("anchors", out int a)) _lblCvAnchors.Text = $"{a} Anchors";
 
             long nativeBytes = _visionEngine.EstimatedNativeMemoryBytes;
             if (nativeBytes > 0)
             {
                 double mb = (double)nativeBytes / (1024 * 1024);
-                _lblCvNativeMem.Text = $"{mb:F1} MB (C++ Heap)";
+                _lblCvNativeMem.Text = $"{mb:F1} MB (C++)";
             }
         }
         catch { }
@@ -399,17 +552,14 @@ public class EnterpriseHubPage : UserControl
         try
         {
             var status = await _launcherService.GetStatusAsync();
+            _isBsRunning = status.Bluestacks;
 
-            if (status.Bluestacks)
+            if (_isBsRunning)
             {
-                _lblAdbStatus.Text = status.GameRunning ? "● MLBB LIVE (ONLINE)" : "● BS5 CONNECTED";
-                _lblAdbStatus.ForeColor = GreenAccent;
                 _lblAdbPort.Text = "127.0.0.1:5555 (Active)";
             }
             else
             {
-                _lblAdbStatus.Text = "● STANDBY / DISCONNECTED";
-                _lblAdbStatus.ForeColor = AmberAccent;
                 _lblAdbPort.Text = "127.0.0.1:5555 (Standby)";
             }
 
@@ -418,8 +568,13 @@ public class EnterpriseHubPage : UserControl
             _lblMemWorkingSet.Text = $"{memMb:F1} MB RAM";
             _lblMemGcHeap.Text = $"GC: {GC.GetTotalMemory(false) / (1024 * 1024):F1} MB";
 
-            _lblCvStatus.Text = _visionEngine.IsReady ? "● PRE-WARMED • READY" : "● INITIALIZING...";
-            _lblCvStatus.ForeColor = _visionEngine.IsReady ? CyanAccent : AmberAccent;
+            // If memory watchdog is active and working set exceeds 140MB, perform automatic compaction
+            if (_isMemWatchdogEnabled && memMb > 140.0)
+            {
+                TrimMemory();
+            }
+
+            UpdateAllCardStates();
         }
         catch
         {
@@ -435,7 +590,12 @@ public class EnterpriseHubPage : UserControl
             Log("=== Starting Automated Startup Pipeline ===", CyanAccent);
             Log("1. Launching BlueStacks 5 & Mobile Legends...", TextPrimary);
             await _launcherService.StartAllAsync();
-            Log("BlueStacks startup request sent successfully.", GreenAccent);
+            _isBsRunning = true;
+            _isVisionEnabled = true;
+            _isAdbCaptureEnabled = true;
+            _isMemWatchdogEnabled = true;
+            UpdateAllCardStates();
+            Log("All companion services enabled & running.", GreenAccent);
             await RefreshTelemetryAsync();
         }
         catch (Exception ex)
@@ -487,9 +647,14 @@ public class EnterpriseHubPage : UserControl
         _btnEmergencyStop.Enabled = false;
         try
         {
-            Log("EMERGENCY STOP: Killing BlueStacks, ADB, and game processes...", RedAccent);
+            Log("EMERGENCY STOP: Terminating all services, BlueStacks, and processes...", RedAccent);
             await _launcherService.CloseBlueStacksAsync();
-            Log("BlueStacks emulator terminated.", AmberAccent);
+            _isBsRunning = false;
+            _isVisionEnabled = false;
+            _isAdbCaptureEnabled = false;
+            _isMemWatchdogEnabled = false;
+            UpdateAllCardStates();
+            Log("All companion services stopped.", AmberAccent);
             await RefreshTelemetryAsync();
         }
         catch (Exception ex)

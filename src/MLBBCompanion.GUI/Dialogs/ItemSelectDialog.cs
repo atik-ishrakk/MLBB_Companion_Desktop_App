@@ -14,12 +14,12 @@ public class ItemSelectDialog : Form
     private readonly List<Item> _allItems;
 
     public Item? SelectedItem { get; private set; }
-    public bool RemoveRequested { get; private set; }
+    public bool RemoveRequested { get; private set; } = false;
 
-    private static readonly Color BgDark = Color.FromArgb(15, 23, 42);
-    private static readonly Color BgCard = Color.FromArgb(30, 41, 59);
-    private static readonly Color BgCardHover = Color.FromArgb(51, 65, 85);
-    private static readonly Color BorderColor = Color.FromArgb(51, 65, 85);
+    private static readonly Color BgDark = Color.FromArgb(10, 15, 29);
+    private static readonly Color BgCard = Color.FromArgb(20, 29, 47);
+    private static readonly Color BgCardHover = Color.FromArgb(30, 45, 70);
+    private static readonly Color BorderColor = Color.FromArgb(40, 53, 76);
     private static readonly Color GoldAccent = Color.FromArgb(245, 158, 11);
     private static readonly Color TextPrimary = Color.FromArgb(248, 250, 252);
     private static readonly Color TextMuted = Color.FromArgb(148, 163, 184);
@@ -30,8 +30,8 @@ public class ItemSelectDialog : Form
         _allItems = _heroDataService.GetAllItems().OrderBy(i => i.Name).ToList();
 
         Text = "SELECT EQUIPMENT";
-        Size = new Size(840, 600);
-        MinimumSize = new Size(680, 480);
+        Size = new Size(1180, 740);
+        MinimumSize = new Size(1080, 680);
         StartPosition = FormStartPosition.CenterParent;
         BackColor = BgDark;
         ForeColor = TextPrimary;
@@ -40,6 +40,7 @@ public class ItemSelectDialog : Form
         MaximizeBox = false;
         MinimizeBox = false;
         KeyPreview = true;
+        DoubleBuffered = true;
 
         KeyDown += (_, e) =>
         {
@@ -50,13 +51,13 @@ public class ItemSelectDialog : Form
             }
         };
 
-        // Header Panel
+        // Header Panel (NO remove item button per requirement)
         var header = new Panel
         {
             Dock = DockStyle.Top,
-            Height = 100,
+            Height = 90,
             BackColor = BgDark,
-            Padding = new Padding(20, 14, 20, 10)
+            Padding = new Padding(20, 12, 20, 8)
         };
         Controls.Add(header);
 
@@ -70,38 +71,26 @@ public class ItemSelectDialog : Form
         };
         header.Controls.Add(lblTitle);
 
-        var btnClear = new Button
+        var lblSub = new Label
         {
-            Text = "✕ Remove Item",
-            BackColor = Color.FromArgb(225, 29, 72),
-            ForeColor = Color.White,
-            FlatStyle = FlatStyle.Flat,
-            Font = new Font("Segoe UI", 8.5f, FontStyle.Bold),
-            Size = new Size(120, 28),
-            Location = new Point(Width - 160, 12),
-            Anchor = AnchorStyles.Top | AnchorStyles.Right,
-            Cursor = Cursors.Hand
+            Text = "Browse all MLBB offensive, defensive, magic, movement, and roaming equipment.",
+            Font = new Font("Segoe UI", 8.5f),
+            ForeColor = TextMuted,
+            AutoSize = true,
+            Location = new Point(220, 16)
         };
-        btnClear.FlatAppearance.BorderSize = 0;
-        btnClear.Click += (_, _) =>
-        {
-            RemoveRequested = true;
-            SelectedItem = null;
-            DialogResult = DialogResult.OK;
-            Close();
-        };
-        header.Controls.Add(btnClear);
+        header.Controls.Add(lblSub);
 
         // Search Box
         _searchBox = new TextBox
         {
-            PlaceholderText = "Search item...",
+            PlaceholderText = "🔍 Search item name...",
             BackColor = BgCard,
             ForeColor = TextPrimary,
             BorderStyle = BorderStyle.FixedSingle,
-            Font = new Font("Segoe UI", 10f),
-            Size = new Size(220, 28),
-            Location = new Point(20, 56)
+            Font = new Font("Segoe UI", 9.5f),
+            Size = new Size(240, 28),
+            Location = new Point(20, 48)
         };
         _searchBox.TextChanged += (_, _) => PopulateGrid();
         header.Controls.Add(_searchBox);
@@ -109,8 +98,8 @@ public class ItemSelectDialog : Form
         // Category Filter Bar
         var filterBar = new FlowLayoutPanel
         {
-            Location = new Point(260, 54),
-            Size = new Size(Width - 280, 36),
+            Location = new Point(280, 46),
+            Size = new Size(Width - 300, 36),
             Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
             BackColor = Color.Transparent,
             WrapContents = false
@@ -130,11 +119,13 @@ public class ItemSelectDialog : Form
                 Font = new Font("Segoe UI", 8.5f, FontStyle.Bold),
                 Height = 28,
                 AutoSize = true,
-                Padding = new Padding(8, 0, 8, 0),
-                Margin = new Padding(0, 0, 6, 0),
+                Padding = new Padding(12, 0, 12, 0),
+                Margin = new Padding(0, 0, 8, 0),
                 Cursor = Cursors.Hand
             };
-            btnCat.FlatAppearance.BorderSize = 0;
+            btnCat.FlatAppearance.BorderSize = 1;
+            btnCat.FlatAppearance.BorderColor = cat == "All" ? GoldAccent : BorderColor;
+
             btnCat.Click += (_, _) =>
             {
                 _activeCategory = cat;
@@ -143,6 +134,7 @@ public class ItemSelectDialog : Form
                     bool isActive = (string)b.Tag! == _activeCategory;
                     b.BackColor = isActive ? GoldAccent : BgCard;
                     b.ForeColor = isActive ? Color.Black : TextMuted;
+                    b.FlatAppearance.BorderColor = isActive ? GoldAccent : BorderColor;
                 }
                 PopulateGrid();
             };
@@ -150,7 +142,7 @@ public class ItemSelectDialog : Form
             filterBar.Controls.Add(btnCat);
         }
 
-        // Grid
+        // Grid of Item Cards - Sized so scroll bar is not needed
         _grid = new FlowLayoutPanel
         {
             Dock = DockStyle.Fill,
@@ -200,7 +192,7 @@ public class ItemSelectDialog : Form
         var panel = new Panel
         {
             Size = new Size(100, 96),
-            Margin = new Padding(5),
+            Margin = new Padding(6),
             BackColor = BgCard,
             Cursor = Cursors.Hand
         };

@@ -39,7 +39,6 @@ public class MainForm : Form
     private FlowLayoutPanel _actionsPanel = null!;
     private Button _btnPhaseStatus = null!;
     private Button _btnBsToggle = null!;
-    private Button _btnCvTensor = null!;
     private Panel _pageHost = null!;
 
     // Native Windows Pages
@@ -180,23 +179,7 @@ public class MainForm : Form
         };
         _topNav.Controls.Add(_actionsPanel);
 
-        // 1. CV Tensor Button
-        _btnCvTensor = CreateActionButton("CV Tensor", BgNavTab, CyanAccent, (_, _) =>
-        {
-            try
-            {
-                _visionEngine.ReloadTemplates();
-                _hubPage.Log("CV Tensors hot-reloaded from top navigation bar.", CyanAccent);
-                MessageBox.Show("OpenCV Tensors and Phase Anchors reloaded successfully.", "CV Tensors", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Failed reloading tensors: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        });
-        _actionsPanel.Controls.Add(_btnCvTensor);
-
-        // 2. BlueStacks 5 Toggle Button
+        // 1. BlueStacks 5 Toggle Button
         _btnBsToggle = CreateActionButton("BlueStacks 5", BgNavTab, TextPrimary, async (_, _) =>
         {
             _btnBsToggle.Enabled = false;
@@ -224,13 +207,13 @@ public class MainForm : Form
         _btnPhaseStatus = new Button
         {
             Text = "● Phase: Draft Pick",
-            Size = new Size(158, 28),
-            BackColor = Color.FromArgb(30, 41, 59),
+            Size = new Size(165, 32),
+            BackColor = Color.FromArgb(20, 30, 48),
             ForeColor = CyanAccent,
             FlatStyle = FlatStyle.Flat,
-            Font = new Font("Segoe UI", 8f, FontStyle.Bold),
+            Font = new Font("Segoe UI", 8.5f, FontStyle.Bold),
             Cursor = Cursors.Hand,
-            Margin = new Padding(0, 0, 4, 0)
+            Margin = new Padding(0, 2, 6, 2)
         };
         _btnPhaseStatus.FlatAppearance.BorderSize = 1;
         _btnPhaseStatus.FlatAppearance.BorderColor = CyanAccent;
@@ -296,7 +279,7 @@ public class MainForm : Form
                     Cursor = Cursors.Hand,
                     Margin = new Padding(0, 0, 8, 0)
                 };
-                picLogo.Click += (_, _) => ShowPage(_hubPage, null);
+                picLogo.Click += (_, _) => ShowPage(_hubPage, _tabButtons.Count > 0 ? _tabButtons[0] : null);
                 pnlBrand.Controls.Add(picLogo);
             }
             catch { }
@@ -311,11 +294,11 @@ public class MainForm : Form
             Cursor = Cursors.Hand,
             Margin = new Padding(0, 6, 0, 0)
         };
-        lblBrand.Click += (_, _) => ShowPage(_hubPage, null);
+        lblBrand.Click += (_, _) => ShowPage(_hubPage, _tabButtons.Count > 0 ? _tabButtons[0] : null);
         pnlBrand.Controls.Add(lblBrand);
-        pnlBrand.Click += (_, _) => ShowPage(_hubPage, null);
+        pnlBrand.Click += (_, _) => ShowPage(_hubPage, _tabButtons.Count > 0 ? _tabButtons[0] : null);
 
-        // Tabs Flow Panel (Draft Pick, Vision Engine, Game Patches)
+        // Tabs Flow Panel (Dashboard, Draft Pick, Vision Engine, Game Patches)
         _tabsPanel = new FlowLayoutPanel
         {
             AutoSize = true,
@@ -346,13 +329,14 @@ public class MainForm : Form
         _pageHost.Controls.Add(_hubPage);
         _pageHost.Controls.Add(_updatesPage);
 
-        // Add Native Page Tabs (Draft Pick, Vision Engine, Game Patches)
+        // Add Native Page Tabs (Dashboard, Draft Pick, Vision Engine, Game Patches)
+        AddPageTab("Dashboard", _hubPage);
         AddPageTab("Draft Pick", _draftPage);
         AddPageTab("Vision Engine", _checkerPage);
         AddPageTab("Game Patches", _updatesPage);
 
-        // Set Default Active Landing Page -> Enterprise Hub
-        ShowPage(_hubPage, null);
+        // Set Default Active Landing Page -> Dashboard
+        ShowPage(_hubPage, _tabButtons.Count > 0 ? _tabButtons[0] : null);
     }
 
     private void AddPageTab(string text, Control pageControl)
@@ -371,7 +355,8 @@ public class MainForm : Form
             Margin = new Padding(0, 0, 8, 0),
             Cursor = Cursors.Hand
         };
-        btn.FlatAppearance.BorderSize = 0;
+        btn.FlatAppearance.BorderSize = 1;
+        btn.FlatAppearance.BorderColor = Color.FromArgb(40, 53, 76);
         btn.Click += (_, _) => ShowPage(pageControl, btn);
 
         _tabButtons.Add(btn);
@@ -387,6 +372,7 @@ public class MainForm : Form
             bool isActive = (b == activeBtn);
             b.BackColor = isActive ? BgNavTabActive : BgNavTab;
             b.ForeColor = isActive ? Color.White : TextSecondary;
+            b.FlatAppearance.BorderColor = isActive ? CyanAccent : Color.FromArgb(40, 53, 76);
             b.Font = new Font("Segoe UI", 9f, isActive ? FontStyle.Bold : FontStyle.Regular);
         }
 
@@ -409,11 +395,12 @@ public class MainForm : Form
             Font = new Font("Segoe UI", 8.5f, FontStyle.Bold),
             Height = 32,
             AutoSize = true,
-            Padding = new Padding(10, 0, 10, 0),
+            Padding = new Padding(12, 0, 12, 0),
             Margin = new Padding(6, 2, 0, 2),
             Cursor = Cursors.Hand
         };
-        btn.FlatAppearance.BorderSize = 0;
+        btn.FlatAppearance.BorderSize = 1;
+        btn.FlatAppearance.BorderColor = Color.FromArgb(51, 65, 85);
         btn.Click += onClick;
         return btn;
     }
@@ -493,25 +480,49 @@ public class MainForm : Form
 
     protected override void OnFormClosing(FormClosingEventArgs e)
     {
-        _pollTimer.Stop();
+        try { _pollTimer?.Stop(); } catch { }
+        try { _pollTimer?.Dispose(); } catch { }
+
         try
         {
-            // Terminate background emulator and game processes cleanly on window close
-            var closeTask = _launcherService.CloseBlueStacksAsync();
-            closeTask.Wait(2000);
+            // Only stop if BlueStacks 5 was already running; never launch or touch hd-player if not running
+            var running = Process.GetProcessesByName("HD-Player");
+            if (running.Length > 0)
+            {
+                foreach (var p in running) p.Dispose();
+                var closeTask = _launcherService.CloseBlueStacksAsync();
+                closeTask.Wait(1200);
+            }
         }
         catch { }
+
         try
         {
             var stopTask = _launcherService.StopGameAsync();
-            stopTask.Wait(1000);
+            stopTask.Wait(600);
         }
         catch { }
+
         try
         {
-            _visionEngine.Dispose();
+            _visionEngine?.Dispose();
         }
         catch { }
+
+        try
+        {
+            (_screenCapture as IDisposable)?.Dispose();
+        }
+        catch { }
+
         base.OnFormClosing(e);
+    }
+
+    protected override void OnFormClosed(FormClosedEventArgs e)
+    {
+        base.OnFormClosed(e);
+        // Ensure all background threads and processes exit cleanly with zero orphaned processes
+        Application.Exit();
+        Environment.Exit(0);
     }
 }

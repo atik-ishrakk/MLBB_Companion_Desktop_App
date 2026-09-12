@@ -33,14 +33,14 @@ if /i "%~1"=="debug" set "CONFIG=Debug"
 if /i "%~1"=="-d"    set "CONFIG=Debug"
 
 echo [*] Building project in %CONFIG% configuration...
-dotnet build "%~dp0src\MLBBCompanion.GUI\MLBBCompanion.GUI.csproj" -c %CONFIG% --nologo
+dotnet build "%~dp0MLBBCompanion.slnx" -c %CONFIG% --nologo
 
 if %ERRORLEVEL% neq 0 (
     echo.
     echo [ERROR] Build failed with configuration %CONFIG%.
     if "%CONFIG%"=="Release" (
         echo [*] Attempting fallback build in Debug mode...
-        dotnet build "%~dp0src\MLBBCompanion.GUI\MLBBCompanion.GUI.csproj" -c Debug --nologo
+        dotnet build "%~dp0MLBBCompanion.slnx" -c Debug --nologo
         if !ERRORLEVEL! neq 0 (
             echo.
             echo [FATAL] Both Release and Debug builds failed.

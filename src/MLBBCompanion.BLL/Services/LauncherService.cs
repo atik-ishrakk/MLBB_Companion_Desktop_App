@@ -134,6 +134,17 @@ public class LauncherService : ILauncherService
     public async Task<bool> CloseBlueStacksAsync()
     {
         _logger.LogInformation("Shutting down BlueStacks 5 emulator...");
+
+        // If BlueStacks 5 is not currently running, DO NOT invoke HD-Player.exe (as invoking it can turn it on!)
+        var runningProcs = Process.GetProcessesByName("HD-Player");
+        if (runningProcs.Length == 0 && _bluestacksProcess == null)
+        {
+            _logger.LogInformation("BlueStacks 5 is not running; skipping shutdown to avoid starting it.");
+            return true;
+        }
+
+        foreach (var p in runningProcs) p.Dispose();
+
         var hdPlayer = _detector.DetectBlueStacksHdPlayer();
 
         if (!string.IsNullOrEmpty(hdPlayer))
